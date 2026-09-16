@@ -50,8 +50,15 @@
     return a;
   }
 
+  // Банка два: рукописный (preguntas.js) и собранный из таблиц (preguntas-auto.js).
+  // ⚠️ Второй может не подгрузиться — тогда работаем на первом, а не падаем.
+  function todasLasPreguntas() {
+    var auto = (typeof PREGUNTAS_AUTO !== "undefined") ? PREGUNTAS_AUTO : [];
+    return PREGUNTAS.concat(auto);
+  }
+
   function preparar() {
-    var base = PREGUNTAS.filter(function (p) { return !MODO.tema || p.t === MODO.tema; });
+    var base = todasLasPreguntas().filter(function (p) { return !MODO.tema || p.t === MODO.tema; });
     base = mezclar(base);
     if (MODO.examen) base = componerExamen(base);
     lista = base.map(function (p) {
@@ -244,7 +251,7 @@
   function empezar() {
     // ⚠️ Молчаливая пустая страница — худший исход: человек думает, что сломан он.
     // Если банк не пришёл (сеть, кеш, промах при выкатке), говорим прямо.
-    if (typeof PREGUNTAS === "undefined" || !PREGUNTAS.length) {
+    if (typeof PREGUNTAS === "undefined" || !todasLasPreguntas().length) {
       $("zona").innerHTML = '<div class="aviso mal"><b>Вопросы не загрузились.</b> ' +
         'Обнови страницу — обычно этого хватает.</div>' +
         '<button class="boton" onclick="location.reload(true)">Обновить</button>';

@@ -79,6 +79,7 @@ sandbox.window.MODO = { tema: null, examen: true };
 sandbox.global = sandbox;
 
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync("preguntas-auto.js", "utf8").replace(/if \(typeof module[\s\S]*$/, ""), sandbox);
 vm.runInContext(fs.readFileSync("preguntas.js", "utf8").replace(/if \(typeof module[\s\S]*$/, ""), sandbox);
 vm.runInContext(fs.readFileSync("senales.js", "utf8").replace(/if \(typeof module[\s\S]*$/, ""), sandbox);
 vm.runInContext(fs.readFileSync("motor.js", "utf8"), sandbox);
