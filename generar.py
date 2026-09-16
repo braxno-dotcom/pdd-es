@@ -20,7 +20,7 @@ import io
 # файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
 # Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
 # Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
-VERSION = "20260916c"
+VERSION = "20260916d"
 
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">
@@ -97,7 +97,7 @@ PLANTILLA = """<!DOCTYPE html>
 </footer>
 
 <script>window.MODO = {modo};</script>
-<script src="senales.js?v={version}"></script>
+<script>{senales}</script>
 <script src="preguntas.js?v={version}"></script>
 <script src="motor.js?v={version}"></script>
 </body>
@@ -598,6 +598,20 @@ PAGINAS = [
 ]
 
 
+def senales_incrustadas():
+    """Знаки вшиваются В САМУ СТРАНИЦУ, отдельным файлом их больше не грузим.
+
+    ⚠️ Повод: Борис — «знаки иногда есть, а иногда страницу обновить нужно».
+    Это была гонка: страница обновляется на GitHub Pages раньше, чем новый файл
+    становится доступен, браузер ловит промах и держит его десять минут по
+    max-age. Вопрос при этом рисовался молча, просто без картинки.
+    Двенадцать килобайт внутри страницы дешевле, чем второй запрос, который
+    может не прийти. Так же устроен и французский сайт — там вообще всё внутри.
+    """
+    codigo = io.open('senales.js', encoding='utf-8').read()
+    return codigo.replace('if (typeof module !== "undefined") module.exports = SENALES;', '')
+
+
 def esquema_faq(pagina):
     """Разметка FAQPage: Google показывает такие вопросы прямо в выдаче."""
     partes = []
@@ -631,6 +645,7 @@ def main():
     for p in PAGINAS:
         html = PLANTILLA.format(
             version=VERSION,
+            senales=senales_incrustadas(),
             esquema=esquema_faq(p),
             faq_html=faq_html(p),
             enlaces=enlaces_html(p["archivo"]),

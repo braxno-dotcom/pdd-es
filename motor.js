@@ -199,7 +199,18 @@
     aplicarRuso();
   }
 
-  function empezar() { preparar(); pintar(); }
+  function empezar() {
+    // ⚠️ Молчаливая пустая страница — худший исход: человек думает, что сломан он.
+    // Если банк не пришёл (сеть, кеш, промах при выкатке), говорим прямо.
+    if (typeof PREGUNTAS === "undefined" || !PREGUNTAS.length) {
+      $("zona").innerHTML = '<div class="aviso mal"><b>Вопросы не загрузились.</b> ' +
+        'Обнови страницу — обычно этого хватает.</div>' +
+        '<button class="boton" onclick="location.reload(true)">Обновить</button>';
+      return;
+    }
+    preparar();
+    pintar();
+  }
 
   document.addEventListener("DOMContentLoaded", function () {
     montarBoton();
