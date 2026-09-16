@@ -12,35 +12,27 @@
    ⚠️ Меняется ТОЛЬКО порядок: правильный держится за текст варианта, а не за номер.
    Проверяется скриптом `auditoria.js` — он же меряет распределение на 100 000 прогонов.
 
-   ⚠️ ПЕРЕВОД ВАРИАНТОВ — кнопка «🇷🇺 Перевод» в углу, состояние помнится в браузере.
-   По умолчанию ВКЛЮЧЁН: сайт для тех, кто испанского ещё не знает, и без перевода
-   вариантов тест бесполезен ровно тем, для кого сделан. Кто уже готов сдавать —
-   выключает и тренируется на чистом испанском, как в зале. */
+   ⚠️⚠️ ПЕРЕВОД — СНАЧАЛА ИСПАНСКИЙ, ПЕРЕВОД ПО ЗАПРОСУ, И НА ОДИН ВОПРОС.
+   Первая версия показывала русский всегда и помнила выбор — это было неправильно:
+   человек читает перевод и испанскую строку не видит вовсе, а на экзамене её не будет.
+   Теперь вопрос приходит по-испански; кнопка открывает перевод ТОЛЬКО текущего
+   вопроса; следующий снова приходит по-испански. Сначала пробуешь понять сам —
+   и только если не вышло, подглядываешь. Перевод правильного ответа после ответа
+   показывается всегда: там уже не проверка, а объяснение. */
 
 (function () {
   var MODO = window.MODO || { tema: null, examen: false };
   var PREGUNTAS_EXAMEN = 30;
   var FALLOS_MAX = 3;
-  var CLAVE_RU = "pdd-es-traduccion";
 
   var lista = [];
   var indice = 0;
   var aciertos = 0;
   var fallos = [];
-  var conRuso = true;
+  var conRuso = false;   // состояние ОДНОГО вопроса, сбрасывается в pintar()
+  var boton = null;      // кнопка перевода; держим ссылкой, а не поиском по id
 
   var $ = function (id) { return document.getElementById(id); };
-
-  function leerPreferencia() {
-    try {
-      var v = localStorage.getItem(CLAVE_RU);
-      if (v !== null) conRuso = v === "1";
-    } catch (e) { /* приватный режим — просто остаёмся на значении по умолчанию */ }
-  }
-
-  function guardarPreferencia() {
-    try { localStorage.setItem(CLAVE_RU, conRuso ? "1" : "0"); } catch (e) {}
-  }
 
   function mezclar(a) {
     a = a.slice();
@@ -67,6 +59,10 @@
   }
 
   function pintar() {
+    conRuso = false;          // каждый новый вопрос приходит по-испански
+    aplicarRuso();
+    mostrarBoton(true);
+
     var p = lista[indice];
     var total = lista.length;
     $("barra").style.width = Math.round((indice / total) * 100) + "%";
@@ -104,11 +100,18 @@
     if (bien) aciertos++;
     else fallos.push({ q: p.q, q_ru: p.q_ru, correcta: correcta.texto, correcta_ru: correcta.ru, e: p.e });
 
+    // Ответ дан — проверка кончилась, дальше объяснение. Русский тут виден всегда,
+    // независимо от кнопки: прятать разбор бессмысленно.
     var aviso = document.createElement("div");
     aviso.className = "aviso " + (bien ? "bien" : "mal");
     aviso.innerHTML = (bien ? "<b>Верно.</b> " : "<b>Правильный ответ:</b> " + correcta.texto +
       (correcta.ru ? " — " + correcta.ru : "") + ". ") + (p.e ? p.e : "");
     $("zona").insertBefore(aviso, $("zona").firstChild);
+
+    // Перевод вопроса после ответа тоже открываем: человек уже не угадывает.
+    conRuso = true;
+    aplicarRuso();
+    mostrarBoton(false);
 
     var siguiente = document.createElement("button");
     siguiente.className = "boton";
@@ -122,6 +125,10 @@
   }
 
   function terminar() {
+    mostrarBoton(false);
+    conRuso = true;
+    aplicarRuso();
+
     $("barra").style.width = "100%";
     $("contador").textContent = "";
     $("puntos").textContent = "";
@@ -165,27 +172,28 @@
 
   function aplicarRuso() {
     document.body.classList.toggle("sin-ru", !conRuso);
-    var b = $("traducir");
-    if (b) b.textContent = conRuso ? "🇷🇺 Перевод включён" : "🇪🇸 Только испанский";
+    if (boton) boton.textContent = conRuso ? "🇪🇸 Скрыть перевод" : "🇷🇺 Перевести вопрос";
+  }
+
+  function mostrarBoton(visible) {
+    if (boton) boton.style.display = visible ? "" : "none";
   }
 
   function montarBoton() {
-    var b = document.createElement("button");
-    b.id = "traducir";
-    b.className = "traducir";
-    b.addEventListener("click", function () {
+    boton = document.createElement("button");
+    boton.id = "traducir";
+    boton.className = "traducir";
+    boton.addEventListener("click", function () {
       conRuso = !conRuso;
-      guardarPreferencia();
       aplicarRuso();
     });
-    document.body.appendChild(b);
+    document.body.appendChild(boton);
     aplicarRuso();
   }
 
   function empezar() { preparar(); pintar(); }
 
   document.addEventListener("DOMContentLoaded", function () {
-    leerPreferencia();
     montarBoton();
     empezar();
   });

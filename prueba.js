@@ -100,18 +100,20 @@ comprobar("у каждого варианта есть перевод", conRu.le
           conRu.length + " из " + botones.length);
 comprobar("счётчик показывает 1 из 30", /из 30/.test(elementos.contador.innerHTML));
 
-// Кнопка перевода появилась и переключает класс на body.
+// Кнопка перевода: испанский первым, перевод по кнопке и только на один вопрос.
 var boton = cuerpo.hijos.filter(function (h) { return h.tag === "button"; })[0];
 comprobar("кнопка перевода добавлена", !!boton);
+comprobar("вопрос приходит по-испански", cuerpo.classList.contains("sin-ru"));
+comprobar("на кнопке написано «Перевести вопрос»", /Перевести/.test(boton ? boton.textContent : ""));
 if (boton) {
-  comprobar("перевод по умолчанию включён", !cuerpo.classList.contains("sin-ru"));
   boton.manejadores.click();
-  comprobar("нажатие прячет перевод", cuerpo.classList.contains("sin-ru"));
+  comprobar("нажатие открывает перевод", !cuerpo.classList.contains("sin-ru"));
+  comprobar("на кнопке написано «Скрыть перевод»", /Скрыть/.test(boton.textContent));
   boton.manejadores.click();
-  comprobar("повторное нажатие возвращает", !cuerpo.classList.contains("sin-ru"));
+  comprobar("повторное нажатие прячет обратно", cuerpo.classList.contains("sin-ru"));
 }
 
-// Отвечаем правильно на первый вопрос: движок держит правильный за текст варианта.
+// Отвечаем правильно: движок держит правильный за текст варианта.
 var textoPregunta = (elementos.zona.innerHTML.match(/class="pregunta-es">([^<]+)</) || [])[1];
 var original = null;
 vm.runInContext("__P = PREGUNTAS;", sandbox);
@@ -130,9 +132,19 @@ if (original) {
     var respuesta = elementos.zona.hijos.map(function (h) { return h.innerHTML || h.textContent || ""; }).join(" ");
     comprobar("ответ засчитан верным", /Верно/.test(respuesta), respuesta.slice(0, 60));
     comprobar("объяснение показано", respuesta.indexOf(original.e.slice(0, 20)) !== -1, original.e.slice(0, 30));
-    comprobar("кнопка «Дальше» появилась",
-              elementos.zona.hijos.some(function (h) { return h.textContent === "Дальше"; }));
+    comprobar("после ответа перевод открылся сам", !cuerpo.classList.contains("sin-ru"));
+    comprobar("кнопка перевода спрятана", boton.style.display === "none");
     comprobar("ошибок по-прежнему ноль", /Ошибок: <b>0<\/b>/.test(elementos.puntos.innerHTML));
+
+    // ⚠️ Главное: следующий вопрос снова приходит по-испански.
+    var siguiente = elementos.zona.hijos.filter(function (h) { return h.textContent === "Дальше"; })[0];
+    comprobar("кнопка «Дальше» появилась", !!siguiente);
+    if (siguiente) {
+      siguiente.manejadores.click();
+      comprobar("следующий вопрос снова по-испански", cuerpo.classList.contains("sin-ru"));
+      comprobar("кнопка перевода вернулась", boton.style.display !== "none");
+      comprobar("счётчик перешёл на второй вопрос", /Вопрос <b>2<\/b>/.test(elementos.contador.innerHTML));
+    }
   }
 }
 
