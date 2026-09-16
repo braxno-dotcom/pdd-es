@@ -133,8 +133,8 @@ if (original) {
     var respuesta = elementos.zona.hijos.map(function (h) { return h.innerHTML || h.textContent || ""; }).join(" ");
     comprobar("ответ засчитан верным", /Верно/.test(respuesta), respuesta.slice(0, 60));
     comprobar("объяснение показано", respuesta.indexOf(original.e.slice(0, 20)) !== -1, original.e.slice(0, 30));
-    comprobar("после ответа перевод открылся сам", !cuerpo.classList.contains("sin-ru"));
-    comprobar("кнопка перевода спрятана", boton.style.display === "none");
+    comprobar("после ответа язык остался как выбрал человек", cuerpo.classList.contains("sin-ru"));
+    comprobar("кнопка перевода на месте", boton.style.display !== "none");
     comprobar("ошибок по-прежнему ноль", /Ошибок: <b>0<\/b>/.test(elementos.puntos.innerHTML));
 
     // ⚠️ Главное: следующий вопрос снова приходит по-испански.
@@ -142,9 +142,22 @@ if (original) {
     comprobar("кнопка «Дальше» появилась", !!siguiente);
     if (siguiente) {
       siguiente.manejadores.click();
-      comprobar("следующий вопрос снова по-испански", cuerpo.classList.contains("sin-ru"));
-      comprobar("кнопка перевода вернулась", boton.style.display !== "none");
-      comprobar("счётчик перешёл на второй вопрос", /Вопрос <b>2<\/b>/.test(elementos.contador.innerHTML));
+      comprobar("следующий вопрос по-испански, раз перевод выключен", cuerpo.classList.contains("sin-ru"));
+      comprobar("кнопка перевода на месте", boton.style.display !== "none");
+      // ⚠️ Главное отличие от первой версии: включённый перевод ДЕРЖИТСЯ дальше,
+      // как на французском сайте. Иначе человек жмёт кнопку тридцать раз подряд.
+      boton.manejadores.click();
+      comprobar("перевод включён", !cuerpo.classList.contains("sin-ru"));
+      var bs = elementos.zona.querySelectorAll(".opcion");
+      bs[0].manejadores.click();
+      var sig = elementos.zona.hijos.filter(function (h) { return h.textContent === "Дальше"; })[0];
+      if (sig) {
+        sig.manejadores.click();
+        comprobar("на следующем вопросе перевод остался включён", !cuerpo.classList.contains("sin-ru"));
+      }
+      comprobar("у вариантов есть буквы A/B/C", /class="letra">A</.test(elementos.zona.innerHTML));
+      comprobar("перевод стоит в скобках рядом", /class="ru">\(/.test(elementos.zona.innerHTML));
+      comprobar("счётчик двигается вперёд", /Вопрос <b>[234]<\/b>/.test(elementos.contador.innerHTML), elementos.contador.innerHTML);
     }
   }
 }

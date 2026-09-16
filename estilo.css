@@ -186,3 +186,22 @@ footer { padding-bottom: 76px; }
 .senal-min { float: left; margin: 0 10px 6px 0; }
 .senal-min svg { width: 52px; height: 52px; }
 .fallo { overflow: hidden; }
+
+/* --- вариант ответа: буква слева, перевод в скобках рядом (как у французского сайта) --- */
+.opcion { display: flex; align-items: flex-start; gap: 10px; }
+.opcion .letra {
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--azul-claro);
+  color: var(--azul);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 26px;
+  text-align: center;
+}
+.opcion .texto { flex: 1; }
+.opcion .es { display: inline; }
+.opcion .ru { display: inline; font-size: 14px; color: var(--gris); margin-top: 0; }
+.opcion.bien .letra { background: #dcfce7; color: var(--verde); }
+.opcion.mal .letra { background: #fee2e2; color: var(--rojo); }

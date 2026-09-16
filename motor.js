@@ -66,7 +66,9 @@
   }
 
   function pintar() {
-    conRuso = false;          // каждый новый вопрос приходит по-испански
+    // ⚠️ Тумблер НЕ сбрасывается на каждом вопросе — так сделано у французского сайта,
+    // и это правильнее: человек, которому перевод нужен, не должен жать кнопку тридцать
+    // раз подряд. Первый вопрос приходит по-испански, дальше как человек решил.
     aplicarRuso();
     mostrarBoton(true);
 
@@ -81,10 +83,13 @@
     var html = dibujoSenal(p.s);
     html += '<div class="pregunta-es">' + p.q + "</div>";
     html += '<div class="pregunta-ru">' + p.q_ru + "</div>";
+    var letras = ["A", "B", "C", "D"];
     p.opciones.forEach(function (o, i) {
-      html += '<button class="opcion" data-i="' + i + '"><span class="es">' + o.texto + "</span>";
-      if (o.ru) html += '<span class="ru">' + o.ru + "</span>";
-      html += "</button>";
+      html += '<button class="opcion" data-i="' + i + '">';
+      html += '<span class="letra">' + (letras[i] || "•") + "</span>";
+      html += '<span class="texto"><span class="es">' + o.texto + "</span>";
+      if (o.ru) html += ' <span class="ru">(' + o.ru + ")</span>";
+      html += "</span></button>";
     });
     $("zona").innerHTML = html;
 
@@ -116,10 +121,7 @@
       (correcta.ru ? " — " + correcta.ru : "") + ". ") + (p.e ? p.e : "");
     $("zona").insertBefore(aviso, $("zona").firstChild);
 
-    // Перевод вопроса после ответа тоже открываем: человек уже не угадывает.
-    conRuso = true;
-    aplicarRuso();
-    mostrarBoton(false);
+    mostrarBoton(true);
 
     var siguiente = document.createElement("button");
     siguiente.className = "boton";
@@ -134,8 +136,6 @@
 
   function terminar() {
     mostrarBoton(false);
-    conRuso = true;
-    aplicarRuso();
 
     $("barra").style.width = "100%";
     $("contador").textContent = "";

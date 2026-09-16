@@ -14,11 +14,22 @@
 """
 import io
 
+# ⚠️ ВЕРСИЯ НА КАЖДОМ ФАЙЛЕ — иначе правка не доезжает до телефона.
+# 16 сен 2026: Борис открыл сайт и увидел вчерашний вид. У французского сайта
+# весь код внутри страницы, поэтому кеш ему не мешает; у нас скрипты отдельными
+# файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
+# Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
+# Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
+VERSION = "20260916c"
+
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>{titulo}</title>
 <meta name="description" content="{descripcion}">
 <meta name="keywords" content="{claves}">
@@ -33,7 +44,7 @@ PLANTILLA = """<!DOCTYPE html>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icono-180.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230f172a' stroke='%231a56db' stroke-width='4'/><text x='50' y='40' text-anchor='middle' font-size='20' font-weight='bold' fill='%2360a5fa'>DGT</text><text x='50' y='62' text-anchor='middle' font-size='13' fill='white'>España</text><text x='50' y='80' text-anchor='middle' font-size='13' fill='%23f87171'>RU</text></svg>">
-<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="estilo.css?v={version}">
 <script type="application/ld+json">{esquema}</script>
 </head>
 <body>
@@ -86,9 +97,9 @@ PLANTILLA = """<!DOCTYPE html>
 </footer>
 
 <script>window.MODO = {modo};</script>
-<script src="senales.js"></script>
-<script src="preguntas.js"></script>
-<script src="motor.js"></script>
+<script src="senales.js?v={version}"></script>
+<script src="preguntas.js?v={version}"></script>
+<script src="motor.js?v={version}"></script>
 </body>
 </html>
 """
@@ -619,6 +630,7 @@ def enlaces_html(archivo_actual):
 def main():
     for p in PAGINAS:
         html = PLANTILLA.format(
+            version=VERSION,
             esquema=esquema_faq(p),
             faq_html=faq_html(p),
             enlaces=enlaces_html(p["archivo"]),
