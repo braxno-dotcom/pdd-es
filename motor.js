@@ -5,20 +5,42 @@
    - examen: 30 вопросов вперемешку, больше 3 ошибок — не сдал (как в DGT);
    - тема: все вопросы темы, без порога, для тренировки.
 
-   ⚠️ Варианты ответов перемешиваются: в банке правильный всегда первый,
-   иначе его легко запомнить по месту, а не по правилу. */
+   ⚠️ ЧЕСТНОЕ ПЕРЕМЕШИВАНИЕ (Фишер-Йетс), а не sort() со случайным сравнением.
+   На французском сайте это померили 12 сен 2026: при трёх вариантах через sort()
+   правильный попадал в первую строку в 37,5 % случаев, а в третью лишь в 25 %.
+   Рука ученика привыкает не смотреть вниз, а на экзамене такого подарка нет.
+   ⚠️ Меняется ТОЛЬКО порядок: правильный держится за текст варианта, а не за номер.
+   Проверяется скриптом `auditoria.js` — он же меряет распределение на 100 000 прогонов.
+
+   ⚠️ ПЕРЕВОД ВАРИАНТОВ — кнопка «🇷🇺 Перевод» в углу, состояние помнится в браузере.
+   По умолчанию ВКЛЮЧЁН: сайт для тех, кто испанского ещё не знает, и без перевода
+   вариантов тест бесполезен ровно тем, для кого сделан. Кто уже готов сдавать —
+   выключает и тренируется на чистом испанском, как в зале. */
 
 (function () {
   var MODO = window.MODO || { tema: null, examen: false };
   var PREGUNTAS_EXAMEN = 30;
   var FALLOS_MAX = 3;
+  var CLAVE_RU = "pdd-es-traduccion";
 
   var lista = [];
   var indice = 0;
   var aciertos = 0;
   var fallos = [];
+  var conRuso = true;
 
   var $ = function (id) { return document.getElementById(id); };
+
+  function leerPreferencia() {
+    try {
+      var v = localStorage.getItem(CLAVE_RU);
+      if (v !== null) conRuso = v === "1";
+    } catch (e) { /* приватный режим — просто остаёмся на значении по умолчанию */ }
+  }
+
+  function guardarPreferencia() {
+    try { localStorage.setItem(CLAVE_RU, conRuso ? "1" : "0"); } catch (e) {}
+  }
 
   function mezclar(a) {
     a = a.slice();
@@ -34,10 +56,12 @@
     base = mezclar(base);
     if (MODO.examen) base = base.slice(0, PREGUNTAS_EXAMEN);
     lista = base.map(function (p) {
-      // Перемешиваем варианты и запоминаем, куда уехал правильный.
-      var pares = p.o.map(function (texto, i) { return { texto: texto, ok: i === p.a }; });
+      // Перемешиваем варианты вместе с их переводами и запоминаем, куда уехал правильный.
+      var pares = p.o.map(function (texto, i) {
+        return { texto: texto, ru: (p.o_ru || [])[i] || "", ok: i === p.a };
+      });
       pares = mezclar(pares);
-      return { q: p.q, q_ru: p.q_ru, opciones: pares, t: p.t };
+      return { q: p.q, q_ru: p.q_ru, e: p.e || "", opciones: pares, t: p.t };
     });
     indice = 0; aciertos = 0; fallos = [];
   }
@@ -54,7 +78,9 @@
     var html = '<div class="pregunta-es">' + p.q + "</div>";
     html += '<div class="pregunta-ru">' + p.q_ru + "</div>";
     p.opciones.forEach(function (o, i) {
-      html += '<button class="opcion" data-i="' + i + '">' + o.texto + "</button>";
+      html += '<button class="opcion" data-i="' + i + '"><span class="es">' + o.texto + "</span>";
+      if (o.ru) html += '<span class="ru">' + o.ru + "</span>";
+      html += "</button>";
     });
     $("zona").innerHTML = html;
 
@@ -67,6 +93,7 @@
     var p = lista[indice];
     var botones = $("zona").querySelectorAll(".opcion");
     var bien = p.opciones[i].ok;
+    var correcta = p.opciones.filter(function (o) { return o.ok; })[0];
 
     Array.prototype.forEach.call(botones, function (b, j) {
       b.disabled = true;
@@ -74,18 +101,13 @@
       else if (j === i) b.classList.add("mal");
     });
 
-    if (bien) {
-      aciertos++;
-    } else {
-      var correcta = p.opciones.filter(function (o) { return o.ok; })[0].texto;
-      fallos.push({ q: p.q, q_ru: p.q_ru, correcta: correcta });
-    }
+    if (bien) aciertos++;
+    else fallos.push({ q: p.q, q_ru: p.q_ru, correcta: correcta.texto, correcta_ru: correcta.ru, e: p.e });
 
     var aviso = document.createElement("div");
     aviso.className = "aviso " + (bien ? "bien" : "mal");
-    aviso.innerHTML = bien
-      ? "Верно"
-      : "Правильный ответ: <b>" + p.opciones.filter(function (o) { return o.ok; })[0].texto + "</b>";
+    aviso.innerHTML = (bien ? "<b>Верно.</b> " : "<b>Правильный ответ:</b> " + correcta.texto +
+      (correcta.ru ? " — " + correcta.ru : "") + ". ") + (p.e ? p.e : "");
     $("zona").insertBefore(aviso, $("zona").firstChild);
 
     var siguiente = document.createElement("button");
@@ -111,7 +133,7 @@
     if (MODO.examen) {
       html += aprobado
         ? "<p><b>Сдано.</b> На экзамене DGT допускается не больше трёх ошибок из тридцати — ты уложился.</p>"
-        : "<p><b>Не сдано.</b> На экзамене DGT больше трёх ошибок из тридцати — это незачёт. Разбери ошибки и пройди ещё раз.</p>";
+        : "<p><b>Не сдано.</b> Больше трёх ошибок из тридцати на экзамене DGT — это незачёт. Разбери ошибки и пройди ещё раз.</p>";
     } else {
       html += "<p>Тренировка по теме закончена.</p>";
     }
@@ -119,8 +141,10 @@
     if (fallos.length) {
       html += "<h3 style='margin-top:18px;text-align:left'>Разбор ошибок</h3>";
       fallos.forEach(function (f) {
-        html += '<div class="fallo"><div class="es">' + f.q + '</div><div class="ru">' + f.q_ru + '</div>';
-        html += '<div class="ok">Правильно: ' + f.correcta + "</div></div>";
+        html += '<div class="fallo"><div class="es">' + f.q + '</div><div class="ru">' + f.q_ru + "</div>";
+        html += '<div class="ok">Правильно: ' + f.correcta + (f.correcta_ru ? " — " + f.correcta_ru : "") + "</div>";
+        if (f.e) html += '<div class="por">' + f.e + "</div>";
+        html += "</div>";
       });
     }
     html += "</div>";
@@ -139,7 +163,30 @@
     $("zona").appendChild(luci);
   }
 
+  function aplicarRuso() {
+    document.body.classList.toggle("sin-ru", !conRuso);
+    var b = $("traducir");
+    if (b) b.textContent = conRuso ? "🇷🇺 Перевод включён" : "🇪🇸 Только испанский";
+  }
+
+  function montarBoton() {
+    var b = document.createElement("button");
+    b.id = "traducir";
+    b.className = "traducir";
+    b.addEventListener("click", function () {
+      conRuso = !conRuso;
+      guardarPreferencia();
+      aplicarRuso();
+    });
+    document.body.appendChild(b);
+    aplicarRuso();
+  }
+
   function empezar() { preparar(); pintar(); }
 
-  document.addEventListener("DOMContentLoaded", empezar);
+  document.addEventListener("DOMContentLoaded", function () {
+    leerPreferencia();
+    montarBoton();
+    empezar();
+  });
 })();

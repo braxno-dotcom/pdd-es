@@ -135,3 +135,45 @@ footer { text-align: center; padding: 24px 16px; color: var(--gris); font-size: 
 footer a { color: var(--azul); }
 
 .nota-pie { font-size: 13px; color: var(--gris); margin-top: 10px; }
+
+/* --- перевод вариантов и кнопка-переключатель --- */
+/* ⚠️ Перевод по умолчанию виден: сайт для тех, кто испанского ещё не знает.
+   Класс sin-ru на body прячет русский — режим «как в зале экзамена». */
+.opcion .es { display: block; }
+.opcion .ru { display: block; font-size: 14px; color: var(--gris); margin-top: 2px; }
+body.sin-ru .opcion .ru,
+body.sin-ru .pregunta-ru { display: none; }
+
+.traducir {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 50;
+  background: var(--oscuro);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .3);
+  cursor: pointer;
+}
+body.sin-ru .traducir { background: var(--azul); }
+
+.fallo .por { font-size: 14px; color: var(--oscuro); margin-top: 6px; }
+.aviso b { font-weight: 700; }
+
+/* Хвост страницы не должен прятаться под плавающей кнопкой. */
+footer { padding-bottom: 76px; }
+
+/* --- длинные текстовые блоки для поиска --- */
+.articulo h2 { font-size: 19px; margin: 18px 0 8px; }
+.articulo h3 { font-size: 16px; margin: 14px 0 6px; }
+.articulo p { margin-bottom: 10px; }
+.articulo table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+.articulo td, .articulo th { border-bottom: 1px solid #e2e8f0; padding: 8px 6px; text-align: left; }
+.articulo th { color: var(--gris); font-weight: 600; }
+.faq { border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 12px; }
+.faq b { display: block; margin-top: 10px; }
