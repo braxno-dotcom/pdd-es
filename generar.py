@@ -20,7 +20,7 @@ import io
 # файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
 # Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
 # Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
-VERSION = "20260916d"
+VERSION = "20260916e"
 
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">
@@ -97,7 +97,7 @@ PLANTILLA = """<!DOCTYPE html>
 </footer>
 
 <script>window.MODO = {modo};</script>
-<script>{senales}</script>
+{senales}
 <script src="preguntas.js?v={version}"></script>
 <script src="motor.js?v={version}"></script>
 </body>
@@ -643,9 +643,12 @@ def enlaces_html(archivo_actual):
 
 def main():
     for p in PAGINAS:
+        # ⚠️ Знаки вшиваем ТОЛЬКО в страницы, где они могут выпасть: это сто
+        # килобайт, и таскать их на страницу про алкоголь незачем.
+        con_senales = p["archivo"] in ("test.html", "senales.html")
         html = PLANTILLA.format(
             version=VERSION,
-            senales=senales_incrustadas(),
+            senales=("<script>" + senales_incrustadas() + "</script>") if con_senales else "",
             esquema=esquema_faq(p),
             faq_html=faq_html(p),
             enlaces=enlaces_html(p["archivo"]),

@@ -53,7 +53,16 @@
   function preparar() {
     var base = PREGUNTAS.filter(function (p) { return !MODO.tema || p.t === MODO.tema; });
     base = mezclar(base);
-    if (MODO.examen) base = base.slice(0, PREGUNTAS_EXAMEN);
+    if (MODO.examen) {
+      // ⚠️ В билет кладём не меньше трети вопросов СО ЗНАКОМ. Без этого случайная
+      // выборка из всего банка давала знак хорошо если пять раз из тридцати, а на
+      // настоящем экзамене DGT знаки — половина дела. Плюс именно они и нужны тем,
+      // кто сдаёт всерьёз: договора об обмене прав у Испании с Россией нет.
+      var conSenal = base.filter(function (p) { return p.s; });
+      var sinSenal = base.filter(function (p) { return !p.s; });
+      var cuota = Math.min(Math.ceil(PREGUNTAS_EXAMEN / 3), conSenal.length);
+      base = mezclar(conSenal.slice(0, cuota).concat(sinSenal.slice(0, PREGUNTAS_EXAMEN - cuota)));
+    }
     lista = base.map(function (p) {
       // Перемешиваем варианты вместе с их переводами и запоминаем, куда уехал правильный.
       var pares = p.o.map(function (texto, i) {
