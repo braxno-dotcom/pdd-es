@@ -53,16 +53,7 @@
   function preparar() {
     var base = PREGUNTAS.filter(function (p) { return !MODO.tema || p.t === MODO.tema; });
     base = mezclar(base);
-    if (MODO.examen) {
-      // ⚠️ В билет кладём не меньше трети вопросов СО ЗНАКОМ. Без этого случайная
-      // выборка из всего банка давала знак хорошо если пять раз из тридцати, а на
-      // настоящем экзамене DGT знаки — половина дела. Плюс именно они и нужны тем,
-      // кто сдаёт всерьёз: договора об обмене прав у Испании с Россией нет.
-      var conSenal = base.filter(function (p) { return p.s; });
-      var sinSenal = base.filter(function (p) { return !p.s; });
-      var cuota = Math.min(Math.ceil(PREGUNTAS_EXAMEN / 3), conSenal.length);
-      base = mezclar(conSenal.slice(0, cuota).concat(sinSenal.slice(0, PREGUNTAS_EXAMEN - cuota)));
-    }
+    if (MODO.examen) base = componerExamen(base);
     lista = base.map(function (p) {
       // Перемешиваем варианты вместе с их переводами и запоминаем, куда уехал правильный.
       var pares = p.o.map(function (texto, i) {
@@ -72,6 +63,44 @@
       return { q: p.q, q_ru: p.q_ru, e: p.e || "", s: p.s || "", opciones: pares, t: p.t };
     });
     indice = 0; aciertos = 0; fallos = [];
+  }
+
+  // ⚠️ СОСТАВ БИЛЕТА. DGT официально НЕ публикует, сколько вопросов какой темы
+  // попадёт в экзамен — это проверено 16 сен 2026, врать про «регламент» нельзя.
+  // Зато разбор реальных экзаменов даёт устойчивую картину, и школы приводят её
+  // одинаково: señales 8-12, normas 6-9, seguridad vial 5-7, conductor 2-4,
+  // vehículo 2-4. Отсюда наши доли — середина этих вилок, ровно тридцать вопросов.
+  // Раньше билет набирался случайно по всему банку, и знаки выпадали пять раз
+  // из тридцати вместо десяти.
+  // Из десяти знаковых вопросов билета семь — с картинкой, три словами: словесные
+  // проверяют то, что по картинке не спросишь (старшинство знаков, разметка).
+  var SENALES_CON_DIBUJO = 7;
+  var CUOTAS = { senales: 10, velocidad: 4, prioridad: 4, seguridad: 5,
+                 alcohol: 3, documentos: 2, multas: 2 };
+
+  function componerExamen(base) {
+    var elegidas = [];
+    var sobras = [];
+    Object.keys(CUOTAS).forEach(function (tema) {
+      var deTema = base.filter(function (p) { return p.t === tema; });
+      // ⚠️ Внутри темы «знаки» сперва берём вопросы С КАРТИНКОЙ: на экзамене знак
+      // показывают, а не описывают словами. Без этой строки из десяти знаковых
+      // вопросов картинка была в пяти — половина темы превращалась в чтение.
+      if (tema === "senales") {
+        var conDibujo = deTema.filter(function (p) { return p.s; });
+        var sinDibujo = deTema.filter(function (p) { return !p.s; });
+        deTema = conDibujo.slice(0, SENALES_CON_DIBUJO)
+                 .concat(sinDibujo, conDibujo.slice(SENALES_CON_DIBUJO));
+      }
+      elegidas = elegidas.concat(deTema.slice(0, CUOTAS[tema]));
+      sobras = sobras.concat(deTema.slice(CUOTAS[tema]));
+    });
+    // Если какой-то темы в банке не хватило — добираем чем есть, чтобы в билете
+    // всегда было ровно тридцать вопросов.
+    if (elegidas.length < PREGUNTAS_EXAMEN) {
+      elegidas = elegidas.concat(sobras.slice(0, PREGUNTAS_EXAMEN - elegidas.length));
+    }
+    return mezclar(elegidas.slice(0, PREGUNTAS_EXAMEN));
   }
 
   function pintar() {
