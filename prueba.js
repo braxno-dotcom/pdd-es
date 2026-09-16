@@ -145,16 +145,16 @@ if (original) {
       siguiente.manejadores.click();
       comprobar("следующий вопрос по-испански, раз перевод выключен", cuerpo.classList.contains("sin-ru"));
       comprobar("кнопка перевода на месте", boton.style.display !== "none");
-      // ⚠️ Главное отличие от первой версии: включённый перевод ДЕРЖИТСЯ дальше,
-      // как на французском сайте. Иначе человек жмёт кнопку тридцать раз подряд.
+      // ⚠️ Главная проверка: перевод НЕ появляется сам. Включили на этом вопросе —
+      // на следующем снова испанский, пока не нажмёшь опять.
       boton.manejadores.click();
-      comprobar("перевод включён", !cuerpo.classList.contains("sin-ru"));
+      comprobar("перевод включён нажатием", !cuerpo.classList.contains("sin-ru"));
       var bs = elementos.zona.querySelectorAll(".opcion");
       bs[0].manejadores.click();
       var sig = elementos.zona.hijos.filter(function (h) { return h.textContent === "Дальше"; })[0];
       if (sig) {
         sig.manejadores.click();
-        comprobar("на следующем вопросе перевод остался включён", !cuerpo.classList.contains("sin-ru"));
+        comprobar("на следующем вопросе перевода снова нет", cuerpo.classList.contains("sin-ru"));
       }
       comprobar("у вариантов есть буквы A/B/C", /class="letra">A</.test(elementos.zona.innerHTML));
       comprobar("перевод стоит в скобках рядом", /class="ru">\(/.test(elementos.zona.innerHTML));
