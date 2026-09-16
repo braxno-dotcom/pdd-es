@@ -31,6 +31,7 @@ PLANTILLA = """<!DOCTYPE html>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7529900678975882" crossorigin="anonymous"></script>
 <link rel="canonical" href="https://braxno-dotcom.github.io/pdd-es/{archivo}">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icono-180.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230f172a' stroke='%231a56db' stroke-width='4'/><text x='50' y='40' text-anchor='middle' font-size='20' font-weight='bold' fill='%2360a5fa'>DGT</text><text x='50' y='62' text-anchor='middle' font-size='13' fill='white'>España</text><text x='50' y='80' text-anchor='middle' font-size='13' fill='%23f87171'>RU</text></svg>">
 <link rel="stylesheet" href="estilo.css">
 <script type="application/ld+json">{esquema}</script>
