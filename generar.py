@@ -20,7 +20,7 @@ import io
 # файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
 # Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
 # Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
-VERSION = "20260916g"
+VERSION = "20260916i"
 
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">
@@ -137,7 +137,7 @@ PAGINAS = [
     автомобиль 2-4. Наш билет собран по середине этих вилок:</p>
     <table>
       <tr><th>Тема</th><th>Вопросов из 30</th></tr>
-      <tr><td>Знаки и разметка</td><td>12, из них 9 с картинкой</td></tr>
+      <tr><td>Знаки и разметка</td><td>12, из них 10 с картинкой</td></tr>
       <tr><td>Безопасность и техника</td><td>5</td></tr>
       <tr><td>Скорость</td><td>3</td></tr>
       <tr><td>Приоритет</td><td>3</td></tr>
@@ -624,7 +624,12 @@ def senales_incrustadas():
     может не прийти. Так же устроен и французский сайт — там вообще всё внутри.
     """
     codigo = io.open('senales.js', encoding='utf-8').read()
-    return codigo.replace('if (typeof module !== "undefined") module.exports = SENALES;', '')
+    codigo = codigo.replace('if (typeof module !== "undefined") module.exports = SENALES;', '')
+    # ⚠️ Разметку и светофор в каталоге знаков не скачать — их рисуют куском асфальта.
+    # Лежат отдельно (marcas.js) и подмешиваются к знакам одним словарём.
+    marcas = io.open('marcas.js', encoding='utf-8').read()
+    marcas = marcas.replace('if (typeof module !== "undefined") module.exports = MARCAS;', '')
+    return codigo + marcas + chr(10) + "Object.assign(SENALES, MARCAS);" + chr(10)
 
 
 def esquema_faq(pagina):

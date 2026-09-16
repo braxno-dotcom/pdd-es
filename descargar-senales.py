@@ -49,7 +49,10 @@ NUESTROS = [
     ("via_ciclistas",         "r407a",  "Дорожка для велосипедистов"),
     ("velocidad_minima",      "r411",   "Минимальная скорость"),
     ("fin_velocidad_maxima",  "r501",   "Конец ограничения скорости"),
+    ("fin_prohibiciones",     "r500",   "Конец всех запретов"),
+    ("paso_obligatorio",      "r401a",  "Обязательный объезд"),
     # --- предупреждения (P) ---
+    ("semaforo",             "p3",     "Светофор"),
     ("paso_nivel_barreras",   "p5",     "Переезд со шлагбаумом"),
     ("paso_nivel_sin_barreras", "p6",   "Переезд без шлагбаума"),
     ("curva_derecha",         "p13a",   "Опасный поворот направо"),
@@ -63,13 +66,13 @@ NUESTROS = [
     ("ciclistas_peligro",     "p22",    "Велосипедисты"),
     ("animales_sueltos",      "p24",    "Дикие животные"),
     ("otros_peligros",        "p50",    "Прочие опасности"),
+    ("obras_temporal",        "tp18",   "Дорожные работы (временный, жёлтый)"),
     # --- указания (S) ---
     # ⚠️ Тяжёлые щиты (автомагистраль, туннель, больница) убраны: один такой весит
     #    как десять запретов, а на экзамене спрашивается редко.
     ("paso_peatones",         "s13",    "Пешеходный переход"),
     ("estacionamiento",       "s17",    "Стоянка"),
     ("calle_residencial",     "s28",    "Жилая зона"),
-    ("fin_calle_residencial", "s29",    "Конец жилой зоны"),
 ]
 
 
@@ -150,7 +153,11 @@ def elegir(titulos, codigo):
         limpio = re.sub(r"[ ,(].*$", "", base)
         if limpio == cod:
             candidatos.append(t)
-        elif limpio.startswith(cod) and len(limpio) <= len(cod) + 1:
+        elif (limpio.startswith(cod) and len(limpio) == len(cod) + 1
+              and not limpio[len(cod)].isdigit()):
+            # ⚠️ Хвост-буква (r401a) — это вариант того же знака, а хвост-цифра
+            # (p33 для p3) — СОВСЕМ ДРУГОЙ знак. Поймано на светофоре: вместо P-3
+            # приезжал P-33.
             parecidos.append(t)
     candidatos = candidatos or parecidos
     if not candidatos:
@@ -160,6 +167,41 @@ def elegir(titulos, codigo):
     lista = frescos or candidatos
     lista.sort(key=lambda t: ("2023" not in t, len(t)))
     return lista[0]
+
+
+def por_nombre_directo(codigo):
+    """Спрашиваем файл ПО ИМЕНИ, а не ищем в выдаче.
+
+    ⚠️ Поиск на Викискладе выдаёт разное от прогона к прогону, и знаки то
+    «находились», то нет. Борис справедливо возмутился: знаки одинаковые во всём
+    мире, «не нашлось» — отговорка. Прямой запрос по имени детерминирован:
+    перебираем известные написания и берём первое существующее.
+    """
+    cod = codigo.lower()
+    may = cod.upper()
+    con_guion = re.sub(r"^([a-z]+)(\d+)", r"\1-\2", cod).upper()   # r301 -> R-301
+    variantes = []
+    for base in (cod, may, con_guion):
+        for palabra in ("signal", "sign"):
+            variantes += ["File:Spain traffic %s %s.svg" % (palabra, base),
+                          "File:Spain traffic %s %s (2023).svg" % (palabra, base),
+                          "File:Spain traffic %s %s, 2023 set.svg" % (palabra, base)]
+    vistos, unicas = set(), []
+    for v in variantes:
+        if v not in vistos:
+            vistos.add(v)
+            unicas.append(v)
+    # API принимает до 50 названий за раз — один запрос на все написания.
+    d = api({"action": "query", "titles": "|".join(unicas), "prop": "info"})
+    paginas = d.get("query", {}).get("pages", {})
+    # ⚠️ Отсутствующие страницы получают ОТРИЦАТЕЛЬНЫЕ ключи: -1, -2, -3… Проверять
+    # только «k != -1» бесполезно — мимо проходят все остальные несуществующие,
+    # и скрипт уверенно тащит выдуманное имя. Смотреть надо на поле missing.
+    existentes = [v.get("title") for v in paginas.values() if "missing" not in v]
+    if not existentes:
+        return None
+    existentes.sort(key=lambda t: ("2023" not in t, len(t)))
+    return existentes[0]
 
 
 def descargar(titulo):
@@ -216,7 +258,7 @@ def main():
 
     resultado, fuentes, faltan = {}, [], []
     for clave, codigo, nombre_ru in NUESTROS:
-        titulo = elegir(titulos, codigo)
+        titulo = por_nombre_directo(codigo) or elegir(titulos, codigo)
         if not titulo:
             faltan.append((clave, codigo, "не нашёлся"))
             continue
