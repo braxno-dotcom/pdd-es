@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://braxno-dotcom.github.io/pdd-es/sitemap.xml
