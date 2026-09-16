@@ -177,3 +177,12 @@ footer { padding-bottom: 76px; }
 .articulo th { color: var(--gris); font-weight: 600; }
 .faq { border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 12px; }
 .faq b { display: block; margin-top: 10px; }
+
+/* --- знак над вопросом --- */
+/* Знак — главное в вопросе, поэтому он крупный и по центру. На телефоне
+   120 пикселей читаются так же, как настоящий знак на подъезде: по форме и цвету. */
+.senal { text-align: center; margin: 0 0 14px; }
+.senal svg { width: 120px; height: 120px; }
+.senal-min { float: left; margin: 0 10px 6px 0; }
+.senal-min svg { width: 52px; height: 52px; }
+.fallo { overflow: hidden; }

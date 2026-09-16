@@ -34,6 +34,13 @@
 
   var $ = function (id) { return document.getElementById(id); };
 
+  // Знак рисуется кодом из senales.js. ⚠️ Если файла нет (старый кеш браузера),
+  // вопрос всё равно показывается — просто без картинки, а не падает молча.
+  function dibujoSenal(codigo, pequeno) {
+    if (!codigo || typeof SENALES === "undefined" || !SENALES[codigo]) return "";
+    return '<div class="senal' + (pequeno ? " senal-min" : "") + '">' + SENALES[codigo] + "</div>";
+  }
+
   function mezclar(a) {
     a = a.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -53,7 +60,7 @@
         return { texto: texto, ru: (p.o_ru || [])[i] || "", ok: i === p.a };
       });
       pares = mezclar(pares);
-      return { q: p.q, q_ru: p.q_ru, e: p.e || "", opciones: pares, t: p.t };
+      return { q: p.q, q_ru: p.q_ru, e: p.e || "", s: p.s || "", opciones: pares, t: p.t };
     });
     indice = 0; aciertos = 0; fallos = [];
   }
@@ -71,7 +78,8 @@
       ? "Ошибок: <b>" + fallos.length + "</b> из " + FALLOS_MAX
       : "Верно: <b>" + aciertos + "</b>";
 
-    var html = '<div class="pregunta-es">' + p.q + "</div>";
+    var html = dibujoSenal(p.s);
+    html += '<div class="pregunta-es">' + p.q + "</div>";
     html += '<div class="pregunta-ru">' + p.q_ru + "</div>";
     p.opciones.forEach(function (o, i) {
       html += '<button class="opcion" data-i="' + i + '"><span class="es">' + o.texto + "</span>";
@@ -98,7 +106,7 @@
     });
 
     if (bien) aciertos++;
-    else fallos.push({ q: p.q, q_ru: p.q_ru, correcta: correcta.texto, correcta_ru: correcta.ru, e: p.e });
+    else fallos.push({ q: p.q, q_ru: p.q_ru, s: p.s, correcta: correcta.texto, correcta_ru: correcta.ru, e: p.e });
 
     // Ответ дан — проверка кончилась, дальше объяснение. Русский тут виден всегда,
     // независимо от кнопки: прятать разбор бессмысленно.
@@ -148,7 +156,7 @@
     if (fallos.length) {
       html += "<h3 style='margin-top:18px;text-align:left'>Разбор ошибок</h3>";
       fallos.forEach(function (f) {
-        html += '<div class="fallo"><div class="es">' + f.q + '</div><div class="ru">' + f.q_ru + "</div>";
+        html += '<div class="fallo">' + dibujoSenal(f.s, true) + '<div class="es">' + f.q + '</div><div class="ru">' + f.q_ru + "</div>";
         html += '<div class="ok">Правильно: ' + f.correcta + (f.correcta_ru ? " — " + f.correcta_ru : "") + "</div>";
         if (f.e) html += '<div class="por">' + f.e + "</div>";
         html += "</div>";

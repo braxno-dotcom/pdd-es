@@ -80,6 +80,7 @@ sandbox.global = sandbox;
 
 vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync("preguntas.js", "utf8").replace(/if \(typeof module[\s\S]*$/, ""), sandbox);
+vm.runInContext(fs.readFileSync("senales.js", "utf8").replace(/if \(typeof module[\s\S]*$/, ""), sandbox);
 vm.runInContext(fs.readFileSync("motor.js", "utf8"), sandbox);
 
 var fallos = 0;
@@ -147,6 +148,20 @@ if (original) {
     }
   }
 }
+
+
+// Вопрос со знаком: картинка должна появиться над текстом.
+console.log("\n" + 'Знак картинкой');
+vm.runInContext('__P = PREGUNTAS;', sandbox);
+var conSena = sandbox.__P.filter(function (p) { return p.s; });
+comprobar('в банке есть вопросы со знаком', conSena.length > 0, 'их ' + conSena.length);
+var dibujados = 0, intentos = 0;
+while (dibujados === 0 && intentos < 80) {
+  intentos++;
+  sandbox.__cargado();
+  if (/<svg /.test(elementos.zona.innerHTML)) dibujados++;
+}
+comprobar('знак отрисован над вопросом', dibujados > 0, 'не попался за ' + intentos + ' прогонов');
 
 console.log(fallos ? "\nПровалено проверок: " + fallos : "\nВсе проверки пройдены");
 process.exit(fallos ? 1 : 0);
