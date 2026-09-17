@@ -295,6 +295,211 @@ def preguntas_senales():
     return salida
 
 
+
+# ============================ РЕАКЦИЯ И ПУТЬ ============================
+# ⚠️ Это НЕ правило, а арифметика: за секунду машина проезжает скорость/3,6 метра.
+# Потому и безопасно генерировать: тут нечему устареть и не в чем ошибиться.
+# Секунда — типичное время реакции, его и используют в автошколах.
+VELOCIDADES_REACCION = [30, 50, 80, 90, 100, 120]
+
+
+def preguntas_reaccion():
+    salida = []
+    for v in VELOCIDADES_REACCION:
+        metros = round(v / 3.6)
+        malos = sorted({round(metros * 0.6), round(metros * 1.5)} - {metros})[:2]
+        salida.append({
+            "t": "seguridad",
+            "q": "A %d km/h, ¿cuántos metros recorre el coche en un segundo de reacción?" % v,
+            "q_ru": "На скорости %d км/ч сколько метров машина проезжает за секунду реакции?" % v,
+            "o": ["Unos %d metros" % metros] + ["Unos %d metros" % m for m in malos],
+            "o_ru": ["Около %d метров" % metros] + ["Около %d метров" % m for m in malos],
+            "e": "Скорость делить на 3,6 — это метры за секунду: %d км/ч дают %d м." % (v, metros),
+        })
+    return salida
+
+
+# ============================ АЛКОГОЛЬ ============================
+# Норма в выдыхаемом воздухе и в крови, по типу водителя.
+TASAS = [
+    ("un conductor con más de dos años de permiso", "водителя со стажем больше двух лет", "0,25", "0,5"),
+    ("un conductor novel (menos de dos años)", "начинающего водителя (меньше двух лет)", "0,15", "0,3"),
+    ("un conductor profesional", "профессионального водителя", "0,15", "0,3"),
+    ("un conductor de autobús escolar", "водителя школьного автобуса", "0,15", "0,3"),
+    ("un ciclista", "велосипедиста", "0,25", "0,5"),
+]
+
+
+def preguntas_alcohol():
+    salida = []
+    otros_aire = ["0,15", "0,25", "0,30", "0,50"]
+    otros_sangre = ["0,3", "0,5", "0,8", "1,0"]
+    for quien_es, quien_ru, aire, sangre in TASAS:
+        malos_a = [x for x in otros_aire if x != aire][:2]
+        malos_s = [x for x in otros_sangre if x != sangre][:2]
+        salida.append({
+            "t": "alcohol",
+            "q": "¿Cuál es la tasa máxima de alcohol en aire espirado para %s?" % quien_es,
+            "q_ru": "Какова максимальная норма алкоголя в выдыхаемом воздухе для %s?" % quien_ru,
+            "o": ["%s mg/l" % aire] + ["%s mg/l" % m for m in malos_a],
+            "o_ru": ["%s мг/л" % aire] + ["%s мг/л" % m for m in malos_a],
+            "e": "Для %s норма в воздухе — %s мг/л." % (quien_ru, aire),
+        })
+        salida.append({
+            "t": "alcohol",
+            "q": "¿Cuál es la tasa máxima de alcohol en sangre para %s?" % quien_es,
+            "q_ru": "Какова максимальная норма алкоголя в крови для %s?" % quien_ru,
+            "o": ["%s g/l" % sangre] + ["%s g/l" % m for m in malos_s],
+            "o_ru": ["%s г/л" % sangre] + ["%s г/л" % m for m in malos_s],
+            "e": "Для %s норма в крови — %s г/л." % (quien_ru, sangre),
+        })
+    return salida
+
+
+# ============================ КАТЕГОРИИ ПРАВ ============================
+# Возраст и что разрешает. Правило записано один раз.
+PERMISOS = [
+    ("AM", "15", "ciclomotores de hasta 45 km/h", "мопеды до 45 км/ч"),
+    ("A1", "16", "motos ligeras de hasta 125 cc", "лёгкие мотоциклы до 125 кубиков"),
+    ("A2", "18", "motos de potencia media limitada", "мотоциклы средней мощности"),
+    ("B", "18", "turismos de hasta 3.500 kg", "легковые до 3500 кг"),
+]
+
+
+def preguntas_permisos():
+    salida = []
+    edades = ["14", "15", "16", "18", "21"]
+    for cat, edad, que_es, que_ru in PERMISOS:
+        malas = [e for e in edades if e != edad][:2]
+        salida.append({
+            "t": "documentos",
+            "q": "¿A partir de qué edad se puede obtener el permiso %s?" % cat,
+            "q_ru": "С какого возраста можно получить категорию %s?" % cat,
+            "o": ["%s años" % edad] + ["%s años" % m for m in malas],
+            "o_ru": ["%s лет" % edad] + ["%s лет" % m for m in malas],
+            "e": "Категория %s — с %s лет (%s)." % (cat, edad, que_ru),
+        })
+        otros = [q for c, e, q, r in PERMISOS if c != cat][:2]
+        salida.append({
+            "t": "documentos",
+            "q": "¿Qué permite conducir el permiso %s?" % cat,
+            "q_ru": "Что разрешает категория %s?" % cat,
+            "o": [que_es.capitalize()] + [o.capitalize() for o in otros],
+            "o_ru": [que_ru.capitalize()] + [r.capitalize() for c, e, q, r in PERMISOS if c != cat][:2],
+            "e": "Категория %s — это %s." % (cat, que_ru),
+        })
+    return salida
+
+
+# ============================ СРОКИ ============================
+# Всё, что меряется временем: годность, продление, техосмотр, обжалование.
+PLAZOS = [
+    ("la validez del examen teórico aprobado", "годность сданной теории", "Dos años", "Два года",
+     ["Seis meses", "Cinco años"], ["Полгода", "Пять лет"]),
+    ("la renovación del permiso B antes de los 65 años", "продление категории B до 65 лет",
+     "Cada diez años", "Каждые десять лет", ["Cada cinco años", "Cada quince años"],
+     ["Каждые пять лет", "Каждые пятнадцать лет"]),
+    ("la renovación del permiso B después de los 65 años", "продление категории B после 65 лет",
+     "Cada cinco años", "Каждые пять лет", ["Cada diez años", "Cada dos años"],
+     ["Каждые десять лет", "Каждые два года"]),
+    ("la ITV de un turismo de cuatro a diez años", "техосмотр легковой машины 4-10 лет",
+     "Cada dos años", "Каждые два года", ["Cada año", "Cada cuatro años"],
+     ["Ежегодно", "Каждые четыре года"]),
+    ("la ITV de un turismo de más de diez años", "техосмотр легковой машины старше десяти лет",
+     "Cada año", "Ежегодно", ["Cada dos años", "Cada seis meses"],
+     ["Каждые два года", "Каждые полгода"]),
+    ("el plazo para pagar una multa con descuento", "срок оплаты штрафа со скидкой",
+     "Veinte días naturales", "Двадцать календарных дней", ["Diez días naturales", "Dos meses"],
+     ["Десять календарных дней", "Два месяца"]),
+    ("el plazo para recurrir una multa", "срок обжалования штрафа",
+     "Veinte días naturales", "Двадцать календарных дней", ["Cinco días naturales", "Tres meses"],
+     ["Пять календарных дней", "Три месяца"]),
+    ("el tiempo sin infracciones graves para recuperar todos los puntos",
+     "срок без серьёзных нарушений для возврата всех баллов",
+     "Dos años", "Два года", ["Seis meses", "Cuatro años"], ["Полгода", "Четыре года"]),
+    ("la duración del curso de recuperación parcial de puntos",
+     "длительность курса частичного восстановления баллов",
+     "Doce horas", "Двенадцать часов", ["Cuatro horas", "Veinticuatro horas"],
+     ["Четыре часа", "Двадцать четыре часа"]),
+    ("el plazo para hacer el examen práctico tras aprobar el teórico",
+     "срок сдачи практики после теории",
+     "Dos años", "Два года", ["Seis meses", "Un año"], ["Полгода", "Один год"]),
+]
+
+
+def preguntas_plazos():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in PLAZOS:
+        salida.append({
+            "t": "documentos",
+            "q": "¿Cuál es %s?" % es,
+            "q_ru": "Каков %s?" % ru if ru.startswith("срок") else "Какова периодичность: %s?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s — %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
+# ============================ ОГНИ ============================
+LUCES = [
+    ("con niebla densa de día", "в густом тумане днём",
+     "Luz de niebla y luz de cruce", "Противотуманные и ближний свет",
+     ["Luz de carretera y de posición", "Sólo las luces de posición"],
+     ["Дальний и габариты", "Только габариты"]),
+    ("al circular por un túnel iluminado", "при проезде освещённого туннеля",
+     "Luz de cruce encendida", "Включённый ближний свет",
+     ["Sólo las luces de posición", "Luz de carretera encendida"],
+     ["Только габариты", "Включённый дальний свет"]),
+    ("al cruzarse con otro vehículo de noche", "при встрече с машиной ночью",
+     "Cambiar a luz de cruce", "Переключиться на ближний",
+     ["Mantener la luz de carretera", "Apagar todas las luces"],
+     ["Оставить дальний", "Выключить весь свет"]),
+    ("al detenerse en el arcén de noche", "при остановке на обочине ночью",
+     "Luces de posición y emergencia", "Габариты и аварийка",
+     ["Luz de carretera encendida", "Todas las luces apagadas"],
+     ["Включённый дальний", "Весь свет выключен"]),
+]
+
+
+def preguntas_luces():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in LUCES:
+        salida.append({
+            "t": "seguridad",
+            "q": "¿Qué luces se utilizan %s?" % es,
+            "q_ru": "Какой свет включают %s?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
+# ============================ ШТРАФЫ В ЕВРО ============================
+IMPORTES = [
+    ("una infracción leve", "лёгкое нарушение", "100"),
+    ("una infracción grave", "серьёзное нарушение", "200"),
+    ("una infracción muy grave", "особо тяжкое нарушение", "500"),
+]
+
+
+def preguntas_importes():
+    salida = []
+    todos = ["100", "200", "500"]
+    for es, ru, importe in IMPORTES:
+        malos = [x for x in todos if x != importe]
+        salida.append({
+            "t": "multas",
+            "q": "¿Cuál es el importe habitual de %s?" % es,
+            "q_ru": "Каков обычный размер штрафа за %s?" % ru,
+            "o": ["%s euros" % importe] + ["%s euros" % m for m in malos],
+            "o_ru": ["%s евро" % importe] + ["%s евро" % m for m in malos],
+            "e": "%s — %s евро." % (ru.capitalize(), importe),
+        })
+    return salida
+
+
 def escribir(preguntas):
     def js(v):
         return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
@@ -366,7 +571,13 @@ def revisar_longitudes(preguntas):
 def main():
     partes = [("скорость", preguntas_velocidad()),
               ("баллы", preguntas_puntos()),
-              ("знаки", preguntas_senales())]
+              ("знаки", preguntas_senales()),
+              ("реакция", preguntas_reaccion()),
+              ("алкоголь", preguntas_alcohol()),
+              ("категории", preguntas_permisos()),
+              ("сроки", preguntas_plazos()),
+              ("огни", preguntas_luces()),
+              ("суммы", preguntas_importes())]
     conocidas = ya_escritas_a_mano()
     todas, saltadas = [], 0
     for nombre, lote in partes:
