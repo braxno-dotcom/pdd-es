@@ -20,7 +20,7 @@ import io
 # файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
 # Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
 # Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
-VERSION = "20260917a"
+VERSION = "20260917b"
 
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">

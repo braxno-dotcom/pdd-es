@@ -500,6 +500,183 @@ def preguntas_importes():
     return salida
 
 
+
+# ============================ ПРИОРИТЕТ ============================
+# Кто кого пропускает. Ситуация записана один раз, вопросов из неё два.
+PRIORIDAD = [
+    ("en una glorieta", "на круговом движении",
+     "Ceden los que entran en ella", "Уступают те, кто въезжает",
+     ["Ceden los que ya circulan dentro", "Cede siempre el vehículo más lento"],
+     ["Уступают те, кто уже внутри", "Уступает самая медленная машина"]),
+    ("en un cruce sin señales", "на перекрёстке без знаков",
+     "Cede quien tiene un vehículo a su derecha", "Уступает тот, у кого машина справа",
+     ["Cede quien circula en línea recta hacia el cruce", "Cede el vehículo de menor tamaño"],
+     ["Уступает тот, кто едет прямо", "Уступает машина поменьше"]),
+    ("al salir de un aparcamiento", "при выезде с парковки",
+     "Cede el que sale a todos los demás", "Выезжающий уступает всем",
+     ["Ceden los que circulan por la vía", "Pasa primero quien llegue antes"],
+     ["Уступают те, кто едет по дороге", "Первым едет подъехавший раньше"]),
+    ("ante un vehículo de emergencia con sirena", "перед спецтранспортом с сиреной",
+     "Todos le facilitan el paso", "Все освобождают ему дорогу",
+     ["Sólo ceden los que van detrás", "Nadie está obligado a cederle"],
+     ["Уступают только едущие сзади", "Никто не обязан уступать"]),
+    ("ante un tranvía en la calzada", "перед трамваем на проезжей части",
+     "El tranvía pasa primero siempre", "Трамвай проезжает первым всегда",
+     ["El tranvía cede en los cruces", "Pasa primero quien llegue antes"],
+     ["Трамвай уступает на перекрёстках", "Первым едет подъехавший раньше"]),
+    ("al incorporarse por un carril de aceleración", "при выезде по полосе разгона",
+     "Cede quien se incorpora a la vía", "Уступает тот, кто вливается",
+     ["Ceden los que ya van por la vía", "Pasa primero el más rápido"],
+     ["Уступают те, кто уже едет", "Первым едет самый быстрый"]),
+    ("al hacer un cambio de sentido", "при развороте",
+     "Cede a todos, vengan de donde vengan", "Уступает всем, откуда бы ни ехали",
+     ["Sólo cede a los que vienen de frente", "Tiene preferencia por ser maniobra"],
+     ["Уступает только встречным", "Имеет приоритет как манёвр"]),
+    ("al circular marcha atrás", "при движении задним ходом",
+     "Cede el paso a todos los demás", "Уступает всем остальным",
+     ["Mantiene la preferencia que tenía", "Tiene preferencia sobre los peatones"],
+     ["Сохраняет прежний приоритет", "Имеет приоритет над пешеходами"]),
+    ("ante un autobús que sale de su parada en ciudad", "перед автобусом от остановки в городе",
+     "Se le cede el paso al autobús", "Автобусу уступают дорогу",
+     ["El autobús cede a todo el mundo", "Pasa primero quien llegue antes"],
+     ["Автобус уступает всем", "Первым едет подъехавший раньше"]),
+    ("en una pendiente estrecha", "на узком подъёме",
+     "Cede quien baja la pendiente", "Уступает едущий вниз",
+     ["Cede quien sube la pendiente", "Cede el vehículo más pesado"],
+     ["Уступает едущий вверх", "Уступает более тяжёлая машина"]),
+    ("ante un peatón en un paso sin semáforo", "перед пешеходом на зебре без светофора",
+     "El peatón tiene prioridad siempre", "Пешеход имеет приоритет всегда",
+     ["El peatón espera a que pase el coche", "El peatón sólo tiene prioridad de día"],
+     ["Пешеход ждёт, пока проедет машина", "Пешеход главнее только днём"]),
+    ("al girar cruzando un carril bici", "при повороте через велополосу",
+     "Cede el paso a los ciclistas", "Уступает велосипедистам",
+     ["Los ciclistas ceden al coche", "Pasa primero quien llegue antes"],
+     ["Велосипедисты уступают машине", "Первым едет подъехавший раньше"]),
+]
+
+PLANTILLAS_PRIORIDAD = [
+    ("¿Quién cede el paso {donde}?", "Кто уступает дорогу {donde_ru}?"),
+    ("La prioridad {donde} funciona así:", "Приоритет {donde_ru} работает так:"),
+]
+
+
+def preguntas_prioridad():
+    salida = []
+    for donde_es, donde_ru, bien_es, bien_ru, mal_es, mal_ru in PRIORIDAD:
+        for es, ru in PLANTILLAS_PRIORIDAD:
+            salida.append({
+                "t": "prioridad",
+                "q": es.format(donde=donde_es),
+                "q_ru": ru.format(donde_ru=donde_ru),
+                "o": [bien_es] + mal_es,
+                "o_ru": [bien_ru] + mal_ru,
+                "e": "%s: %s." % (donde_ru.capitalize(), bien_ru.lower()),
+            })
+    return salida
+
+
+# ============================ БЕЗОПАСНОСТЬ ============================
+SEGURIDAD = [
+    ("el cinturón de seguridad", "ремень безопасности",
+     "Obligatorio en todas las plazas", "Обязателен на всех местах",
+     ["Obligatorio sólo delante", "Obligatorio sólo fuera de ciudad"],
+     ["Обязателен только спереди", "Обязателен только за городом"]),
+    ("el casco en moto", "шлем на мотоцикле",
+     "Obligatorio siempre, también en ciudad", "Обязателен всегда, и в городе тоже",
+     ["Obligatorio sólo fuera de poblado", "Obligatorio sólo en autovía"],
+     ["Обязателен только за городом", "Обязателен только на магистрали"]),
+    ("la baliza V-16", "маячок V-16",
+     "Sustituye a los triángulos desde 2026", "Заменяет треугольники с 2026 года",
+     ["Se usa junto con los triángulos", "Sólo es obligatoria de noche"],
+     ["Используется вместе с треугольниками", "Обязателен только ночью"]),
+    ("el chaleco reflectante", "светоотражающий жилет",
+     "Se pone antes de salir del coche", "Надевают до выхода из машины",
+     ["Se pone una vez fuera del coche", "Sólo hace falta de noche"],
+     ["Надевают уже снаружи", "Нужен только ночью"]),
+    ("la silla infantil hasta 135 cm", "детское кресло до 135 см",
+     "Obligatoria y en los asientos traseros", "Обязательно, и на задних сиденьях",
+     ["Obligatoria sólo en viajes largos", "Basta con el cinturón del coche"],
+     ["Обязательно только в дальних поездках", "Хватает обычного ремня"]),
+    ("la silla a contramarcha delante", "кресло против хода на переднем сиденье",
+     "Exige desactivar el airbag frontal", "Требует отключить подушку",
+     ["Exige retrasar el asiento del todo", "Está prohibida en cualquier caso"],
+     ["Требует отодвинуть сиденье назад", "Запрещено в любом случае"]),
+    ("el extintor en un turismo particular", "огнетушитель в личной легковой",
+     "No es obligatorio llevarlo", "Возить необязательно",
+     ["Es obligatorio desde hace años", "Es obligatorio sólo en verano"],
+     ["Обязателен уже много лет", "Обязателен только летом"]),
+    ("la profundidad del dibujo del neumático", "глубина протектора шины",
+     "Mínimo un milímetro y seis", "Минимум полтора миллиметра с лишним",
+     ["Mínimo dos milímetros y medio", "Mínimo un milímetro justo"],
+     ["Минимум два с половиной миллиметра", "Минимум ровно один миллиметр"]),
+    ("la presión de los neumáticos", "давление в шинах",
+     "Se mide en frío, una vez al mes", "Меряют на холодных, раз в месяц",
+     ["Se mide en caliente tras rodar", "Se mide una vez al año en la ITV"],
+     ["Меряют на горячих после езды", "Меряют раз в год на техосмотре"]),
+    ("los auriculares conectados al móvil", "наушники, подключённые к телефону",
+     "Están prohibidos al conducir", "Запрещены за рулём",
+     ["Se permiten fuera de ciudad", "Se permiten con manos libres"],
+     ["Разрешены за городом", "Разрешены при свободных руках"]),
+]
+
+
+def preguntas_seguridad_tabla():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in SEGURIDAD:
+        salida.append({
+            "t": "seguridad",
+            "q": "¿Qué norma rige para %s?" % es,
+            "q_ru": "Какое правило действует для «%s»?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
+# ============================ ЧТО ВОЗИТЬ И ЭКОЛОГИЯ ============================
+DOCUMENTOS_TABLA = [
+    ("el permiso de conducir", "водительские права",
+     "Siempre encima al conducir", "Всегда с собой за рулём",
+     ["Sólo en los viajes largos", "Basta una foto en el móvil"],
+     ["Только в дальних поездках", "Хватает фото в телефоне"]),
+    ("el permiso de circulación", "свидетельство о регистрации",
+     "Documento obligatorio del vehículo", "Обязательный документ на машину",
+     ["Documento opcional, no siempre exigido", "Sólo hace falta para vender el coche"],
+     ["Необязательный документ", "Нужен только для продажи"]),
+    ("la ficha técnica", "техпаспорт с отметками ITV",
+     "Documento obligatorio del vehículo", "Обязательный документ на машину",
+     ["Sólo hace falta el día de la ITV", "Sólo hace falta para vender el coche"],
+     ["Нужен только на техосмотре", "Нужен только для продажи"]),
+    ("el seguro obligatorio", "обязательная страховка",
+     "Cubre los daños a terceros", "Покрывает ущерб третьим лицам",
+     ["Cubre todos los daños propios", "Cubre sólo al conductor"],
+     ["Покрывает свой ущерб полностью", "Покрывает только водителя"]),
+    ("el distintivo ambiental", "экологическая наклейка",
+     "Clasifica el coche por emisiones", "Делит машины по выбросам",
+     ["Clasifica el coche por antigüedad", "Clasifica el coche por potencia"],
+     ["Делит машины по возрасту", "Делит машины по мощности"]),
+    ("la Zona de Bajas Emisiones", "зона низких выбросов",
+     "Obligatoria en ciudades grandes", "Обязательна в крупных городах",
+     ["Existe sólo en la capital", "Funciona sólo los fines de semana"],
+     ["Есть только в столице", "Работает только по выходным"]),
+]
+
+
+def preguntas_documentos_tabla():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in DOCUMENTOS_TABLA:
+        salida.append({
+            "t": "documentos",
+            "q": "¿Qué hay que saber sobre %s?" % es,
+            "q_ru": "Что нужно знать про «%s»?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
 def escribir(preguntas):
     def js(v):
         return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
@@ -577,7 +754,10 @@ def main():
               ("категории", preguntas_permisos()),
               ("сроки", preguntas_plazos()),
               ("огни", preguntas_luces()),
-              ("суммы", preguntas_importes())]
+              ("суммы", preguntas_importes()),
+              ("приоритет", preguntas_prioridad()),
+              ("безопасность", preguntas_seguridad_tabla()),
+              ("документы", preguntas_documentos_tabla())]
     conocidas = ya_escritas_a_mano()
     todas, saltadas = [], 0
     for nombre, lote in partes:
