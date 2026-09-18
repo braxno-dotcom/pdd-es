@@ -677,6 +677,251 @@ def preguntas_documentos_tabla():
     return salida
 
 
+
+# ============================ ГДЕ НЕЛЬЗЯ СТОЯТЬ ============================
+# Список мест, где стоянка или остановка запрещены. Ответ один и тот же по смыслу,
+# поэтому меняем не ответ, а МЕСТО — так вопросы остаются разными.
+SIN_ESTACIONAR = [
+    ("sobre un paso de peatones", "на пешеходном переходе"),
+    ("sobre un carril bici", "на велосипедной дорожке"),
+    ("sobre la acera", "на тротуаре"),
+    ("en una parada de autobús", "на автобусной остановке"),
+    ("delante de un vado señalizado", "перед обозначенным выездом"),
+    ("en doble fila", "вторым рядом"),
+    ("dentro de una intersección", "прямо на перекрёстке"),
+    ("en un túnel o bajo un puente", "в туннеле или под мостом"),
+    ("en una plaza para personas con discapacidad sin tarjeta",
+     "на месте для людей с инвалидностью без карточки"),
+    ("en un carril reservado al transporte público", "на полосе общественного транспорта"),
+]
+
+
+def preguntas_estacionar():
+    salida = []
+    for es, ru in SIN_ESTACIONAR:
+        salida.append({
+            "t": "multas",
+            "q": "Estacionar %s:" % es,
+            "q_ru": "Стоянка %s:" % ru,
+            "o": ["Está prohibido y se sanciona",
+                  "Se permite durante unos minutos",
+                  "Se permite si no molesta a nadie"],
+            "o_ru": ["Запрещена и наказуема",
+                     "Разрешена на несколько минут",
+                     "Разрешена, если никому не мешает"],
+            "e": "Стоянка %s запрещена: за это штрафуют и могут увезти машину." % ru,
+        })
+    return salida
+
+
+# ============================ ГДЕ НЕЛЬЗЯ ОБГОНЯТЬ ============================
+SIN_ADELANTAR = [
+    ("en un cambio de rasante sin visibilidad", "на переломе дороги без видимости"),
+    ("en una curva de visibilidad reducida", "на повороте с плохой видимостью"),
+    ("en un paso a nivel y en sus proximidades", "на переезде и рядом с ним"),
+    ("justo antes de un paso de peatones", "прямо перед пешеходным переходом"),
+    ("donde la marca vial es una línea continua", "там, где разметка сплошная"),
+    ("en un túnel de un solo carril por sentido", "в туннеле с одной полосой в сторону"),
+]
+
+
+def preguntas_adelantar():
+    salida = []
+    for es, ru in SIN_ADELANTAR:
+        salida.append({
+            "t": "prioridad",
+            "q": "Adelantar %s:" % es,
+            "q_ru": "Обгон %s:" % ru,
+            "o": ["Está prohibido en todo caso",
+                  "Se permite si no viene nadie",
+                  "Se permite a poca velocidad"],
+            "o_ru": ["Запрещён в любом случае",
+                     "Разрешён, если никто не едет навстречу",
+                     "Разрешён на малой скорости"],
+            "e": "Обгон %s запрещён — видимости или места для манёвра там нет." % ru,
+        })
+    return salida
+
+
+# ============================ МАНЁВРЫ И СИГНАЛЫ ============================
+MANIOBRAS = [
+    ("al cambiar de carril", "при смене полосы",
+     "Señalizar con el intermitente antes", "Заранее включить поворотник",
+     ["Basta con mirar por el retrovisor", "Basta con hacerlo despacio"],
+     ["Достаточно посмотреть в зеркало", "Достаточно сделать это медленно"]),
+    ("al salir de una glorieta", "при съезде с кругового",
+     "Señalizar a la derecha antes de salir", "Показать направо перед съездом",
+     ["No hace falta señalizar nada", "Señalizar a la izquierda al salir"],
+     ["Показывать ничего не нужно", "Показать налево при съезде"]),
+    ("al incorporarse desde un estacionamiento", "при выезде со стоянки",
+     "Señalizar y ceder el paso a todos", "Показать поворот и уступить всем",
+     ["Señalizar basta, la prioridad es tuya", "Tocar el claxon para avisar"],
+     ["Достаточно показать поворот, приоритет твой", "Посигналить, чтобы предупредить"]),
+    ("con las luces de emergencia", "с аварийной сигнализацией",
+     "Avisar de una retención o un peligro", "Предупредить о заторе или опасности",
+     ["Aparcar un momento en doble fila", "Circular más despacio de lo normal"],
+     ["Постоять минуту вторым рядом", "Ехать медленнее обычного"]),
+    ("con el claxon en ciudad", "с клаксоном в городе",
+     "Sólo para evitar un peligro inmediato", "Только чтобы избежать опасности",
+     ["Para avisar de que vas a adelantar", "Para meter prisa al de delante"],
+     ["Чтобы предупредить об обгоне", "Чтобы поторопить переднего"]),
+    ("al girar a la izquierda en un cruce", "при повороте налево на перекрёстке",
+     "Ceder el paso a los que vienen de frente", "Уступить встречным",
+     ["Pasar primero, ya que eres el que gira", "Tocar el claxon y girar sin más"],
+     ["Проехать первым, раз поворачиваешь", "Посигналить и повернуть"]),
+    ("antes de abrir la puerta al aparcar", "перед открытием двери на парковке",
+     "Mirar atrás por ciclistas y coches", "Посмотреть назад: велосипеды и машины",
+     ["Abrir despacio es suficiente", "No hace falta mirar si está parado"],
+     ["Достаточно открыть медленно", "Смотреть не нужно, машина стоит"]),
+    ("al circular detrás de una ambulancia con sirena", "при движении за скорой с сиреной",
+     "Facilitarle el paso y no seguirla de cerca", "Освободить дорогу и не ехать вплотную",
+     ["Seguirla de cerca para avanzar antes", "Adelantarla si va despacio"],
+     ["Ехать вплотную, чтобы продвинуться", "Обогнать, если едет медленно"]),
+]
+
+
+def preguntas_maniobras():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in MANIOBRAS:
+        salida.append({
+            "t": "seguridad",
+            "q": "¿Qué hay que hacer %s?" % es,
+            "q_ru": "Что нужно делать %s?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
+# ============================ АВАРИЯ: ПРАВИЛО PAS ============================
+# Proteger, Avisar, Socorrer — защитить, вызвать, помочь. Этому учат везде.
+ACCIDENTE = [
+    ("lo primero que se hace al llegar a un accidente", "первое, что делают на месте аварии",
+     "Proteger el lugar para evitar otro choque", "Защитить место, чтобы не было второй аварии",
+     ["Mover a los heridos fuera de los coches", "Fotografiar todo para el seguro"],
+     ["Вытащить пострадавших из машин", "Сфотографировать всё для страховой"]),
+    ("el número de emergencias en España", "номер экстренных служб в Испании",
+     "El 112, gratuito desde cualquier móvil", "112, бесплатно с любого телефона",
+     ["El 080 de los bomberos", "El 060 de información administrativa"],
+     ["080, пожарные", "060, справочная администрации"]),
+    ("qué NO se debe hacer con un motorista caído", "чего НЕ делать с упавшим мотоциклистом",
+     "No quitarle el casco salvo peligro vital", "Не снимать шлем без угрозы жизни",
+     ["Quitarle el casco siempre y rápido", "Sentarlo para que respire mejor"],
+     ["Снять шлем сразу и быстро", "Усадить, чтобы легче дышал"]),
+    ("cómo se señaliza el vehículo accidentado desde 2026",
+     "как обозначают аварийную машину с 2026 года",
+     "Con la baliza V-16 conectada", "Светящимся маячком V-16",
+     ["Con los dos triángulos de siempre", "Con las luces de carretera encendidas"],
+     ["Двумя привычными треугольниками", "Включённым дальним светом"]),
+    ("qué hacer si hay heridos y no sabes primeros auxilios",
+     "что делать при пострадавших, если не умеешь оказывать помощь",
+     "Llamar al 112 y seguir sus instrucciones", "Позвонить 112 и слушать указания",
+     ["Esperar a que llegue alguien que sepa", "Llevar al herido al hospital en tu coche"],
+     ["Ждать того, кто умеет", "Везти пострадавшего в больницу самому"]),
+    ("el parte amistoso de accidente", "европротокол о ДТП",
+     "Se rellena y firma entre los implicados", "Заполняют и подписывают участники",
+     ["Lo rellena siempre la policía local", "Sólo vale si hay heridos graves"],
+     ["Заполняет всегда полиция", "Годится только при пострадавших"]),
+]
+
+
+def preguntas_accidente():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in ACCIDENTE:
+        salida.append({
+            "t": "seguridad",
+            "q": "¿Cuál es %s?" % es if es.startswith(("el ", "lo ")) else "¿Sabes %s?" % es,
+            "q_ru": "Знаешь, %s?" % ru if not ru.startswith(("первое", "номер", "как", "что")) else "%s?" % ru.capitalize(),
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": bien_ru + ".",
+        })
+    return salida
+
+
+# ============================ СОСТОЯНИЕ ВОДИТЕЛЯ ============================
+CONDUCTOR = [
+    ("la somnolencia al volante", "сонливость за рулём",
+     "Se combate parando a descansar", "Лечится остановкой и отдыхом",
+     ["Se combate con música alta", "Se combate abriendo la ventanilla"],
+     ["Лечится громкой музыкой", "Лечится открытым окном"]),
+    ("conducir con gafas graduadas obligatorias", "езда в обязательных очках",
+     "Figura como condición en el permiso", "Отмечено условием в правах",
+     ["Es una recomendación del médico", "Sólo hace falta de noche"],
+     ["Это рекомендация врача", "Нужны только ночью"]),
+    ("un viaje largo por autopista", "долгая поездка по магистрали",
+     "Conviene parar cada dos horas", "Стоит останавливаться каждые два часа",
+     ["Conviene no parar para llegar antes", "Basta con parar al repostar"],
+     ["Лучше не останавливаться, чтобы успеть", "Хватает остановки на заправке"]),
+    ("el estrés y la prisa al conducir", "спешка и стресс за рулём",
+     "Aumentan los errores y los riesgos", "Увеличивают число ошибок и риск",
+     ["Mejoran la concentración al volante", "No influyen si se conoce la ruta"],
+     ["Улучшают собранность за рулём", "Не влияют, если дорога знакома"]),
+    ("comer copiosamente antes de conducir", "плотно поесть перед поездкой",
+     "Favorece la somnolencia al volante", "Усиливает сонливость за рулём",
+     ["No tiene ningún efecto al volante", "Mejora la atención por la energía"],
+     ["Никак не влияет за рулём", "Улучшает внимание за счёт энергии"]),
+    ("conducir con fiebre o dolor fuerte", "езда с температурой или сильной болью",
+     "Reduce la atención y conviene evitarlo", "Снижает внимание, лучше не садиться",
+     ["No afecta si el trayecto es corto", "Se compensa conduciendo más despacio"],
+     ["Не мешает, если ехать недалеко", "Компенсируется медленной ездой"]),
+]
+
+
+def preguntas_conductor():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in CONDUCTOR:
+        salida.append({
+            "t": "alcohol",
+            "q": "¿Qué se sabe sobre %s?" % es,
+            "q_ru": "Что известно про «%s»?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
+# ============================ ГРУЗ И ПАССАЖИРЫ ============================
+CARGA = [
+    ("una carga que sobresale por detrás", "груз, выступающий сзади",
+     "Se señaliza con el panel V-20", "Обозначается щитком V-20",
+     ["Se señaliza con un trapo rojo", "Se señaliza con las luces de emergencia"],
+     ["Обозначается красной тряпкой", "Обозначается аварийной сигнализацией"]),
+    ("llevar pasajeros en la zona de carga", "перевозка людей в грузовом отсеке",
+     "Está prohibido en cualquier caso", "Запрещена в любом случае",
+     ["Se permite en trayectos cortos", "Se permite fuera de ciudad"],
+     ["Разрешена на коротких поездках", "Разрешена за городом"]),
+    ("el número de pasajeros permitido", "число пассажиров",
+     "El que indica la ficha técnica", "То, что указано в техпаспорте",
+     ["Los que quepan con cinturón", "Uno más si es un niño"],
+     ["Сколько влезет с ремнями", "На одного больше, если это ребёнок"]),
+    ("una carga mal sujeta", "плохо закреплённый груз",
+     "Es infracción y peligro para otros", "Нарушение и опасность для других",
+     ["Sólo importa si llega a caerse", "Sólo se sanciona a los camiones"],
+     ["Важно, только если упадёт", "Наказывают только грузовики"]),
+    ("llevar bultos sueltos en el habitáculo", "незакреплённые вещи в салоне",
+     "Salen despedidos al frenar de golpe", "При резком торможении летят вперёд",
+     ["No suponen ningún riesgo real alguno", "Sólo molestan a los pasajeros detrás"],
+     ["Никакого риска не несут", "Только мешают пассажирам"]),
+]
+
+
+def preguntas_carga():
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in CARGA:
+        salida.append({
+            "t": "seguridad",
+            "q": "¿Qué hay que saber sobre %s?" % es,
+            "q_ru": "Что нужно знать про «%s»?" % ru,
+            "o": [bien_es] + mal_es,
+            "o_ru": [bien_ru] + mal_ru,
+            "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+        })
+    return salida
+
+
 def escribir(preguntas):
     def js(v):
         return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
@@ -757,7 +1002,13 @@ def main():
               ("суммы", preguntas_importes()),
               ("приоритет", preguntas_prioridad()),
               ("безопасность", preguntas_seguridad_tabla()),
-              ("документы", preguntas_documentos_tabla())]
+              ("документы", preguntas_documentos_tabla()),
+              ("стоянка", preguntas_estacionar()),
+              ("обгон", preguntas_adelantar()),
+              ("манёвры", preguntas_maniobras()),
+              ("авария", preguntas_accidente()),
+              ("водитель", preguntas_conductor()),
+              ("груз", preguntas_carga())]
     conocidas = ya_escritas_a_mano()
     todas, saltadas = [], 0
     for nombre, lote in partes:

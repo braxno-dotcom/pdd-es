@@ -117,10 +117,17 @@ if (boton) {
 
 // Отвечаем правильно: движок держит правильный за текст варианта.
 var textoPregunta = (elementos.zona.innerHTML.match(/class="pregunta-es">([^<]+)</) || [])[1];
-var original = null;
-vm.runInContext("__P = PREGUNTAS;", sandbox);
-sandbox.__P.forEach(function (p) { if (p.q === textoPregunta) original = p; });
-comprobar("вопрос найден в банке", !!original, textoPregunta);
+// ⚠️ Искать вопрос ПО ТЕКСТУ больше нельзя: у машинных вопросов про знаки шапка
+// одна на всех («¿Qué significa esta señal?»), и тест находил чужой вопрос, а потом
+// ругался, что правильного варианта нет среди показанных. Ищем среди ОДНОИМЁННЫХ тот,
+// чьи варианты совпали с показанными на экране.
+vm.runInContext("__P = PREGUNTAS.concat(typeof PREGUNTAS_AUTO !== 'undefined' ? PREGUNTAS_AUTO : []);", sandbox);
+var mostrados = botones.map(function (b) { return b.cuerpo; }).join(" ");
+var candidatos = sandbox.__P.filter(function (p) { return p.q === textoPregunta; });
+var original = candidatos.filter(function (p) {
+  return p.o.every(function (o) { return mostrados.indexOf(o) !== -1; });
+})[0] || null;
+comprobar("вопрос найден в банке", !!original, textoPregunta + " (одноимённых: " + candidatos.length + ")");
 
 if (original) {
   var correcto = original.o[original.a];
