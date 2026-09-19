@@ -678,7 +678,10 @@ def main():
         io.open(p["archivo"], "w", encoding="utf-8").write(html)
         print("собрано: %-18s %d знаков текста" % (p["archivo"], len(p["texto"])))
 
-    hoy = "2026-09-16"
+    # ⚠️ Дата берётся текущая, а не вписывается руками: у французского сайта она
+    # застряла на марте, и поисковик полгода считал, что там ничего не менялось.
+    from datetime import date
+    hoy = date.today().isoformat()
     urls = ["index.html"] + [p["archivo"] for p in PAGINAS]
     mapa = ['<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
