@@ -922,6 +922,217 @@ def preguntas_carga():
     return salida
 
 
+
+# ============================ МОТОЦИКЛЫ ============================
+MOTO = [
+    ("el casco en moto o ciclomotor", "шлем на мотоцикле и мопеде",
+     "Obligatorio siempre, conductor y pasajero", "Обязателен всегда, водителю и пассажиру",
+     ["Obligatorio únicamente fuera de poblado", "Obligatorio sólo para quien conduce"],
+     ["Обязателен только за городом", "Обязателен только водителю"]),
+    ("circular entre dos filas de coches", "езда между рядами машин",
+     "Está prohibido en cualquier caso", "Запрещена в любом случае",
+     ["Se permite en atascos lentos", "Se permite si se va despacio"],
+     ["Разрешена в медленных пробках", "Разрешена, если ехать медленно"]),
+    ("la luz de cruce en moto de día", "ближний свет на мотоцикле днём",
+     "Obligatoria también de día", "Обязателен и днём тоже",
+     ["Sólo obligatoria de noche", "Sólo obligatoria en autovía"],
+     ["Обязателен только ночью", "Обязателен только на магистрали"]),
+    ("llevar pasajero en ciclomotor", "пассажир на мопеде",
+     "Sólo si el vehículo está homologado", "Только если мопед на это рассчитан",
+     ["Siempre se permite si lleva casco", "Se permite a partir de los 14 años"],
+     ["Всегда можно, если в шлеме", "Можно начиная с 14 лет"]),
+    ("adelantar a una moto", "обгон мотоцикла",
+     "Se deja el mismo metro y medio", "Оставляют те же полтора метра",
+     ["Basta con separarse un metro", "No hay distancia mínima fijada"],
+     ["Хватает одного метра", "Минимального расстояния нет"]),
+]
+
+
+# ============================ ВЕЛОСИПЕДИСТЫ ============================
+BICI = [
+    ("el casco del ciclista fuera de poblado", "шлем велосипедиста за городом",
+     "Obligatorio para todos los ciclistas", "Обязателен всем велосипедистам",
+     ["Obligatorio sólo para menores", "Recomendado, pero no obligatorio"],
+     ["Обязателен только детям", "Рекомендован, но не обязателен"]),
+    ("el ciclista de noche fuera de poblado", "велосипедист ночью за городом",
+     "Luces y prenda reflectante obligatorias", "Фонари и светоотражающее обязательны",
+     ["Basta con un reflectante en la parte trasera", "Basta con circular por el arcén"],
+     ["Хватает катафота сзади", "Хватает ехать по обочине"]),
+    ("la tasa de alcohol del ciclista", "норма алкоголя для велосипедиста",
+     "La misma que la de un conductor", "Та же, что у водителя машины",
+     ["No se le aplica ninguna tasa", "Se le aplica el doble de margen"],
+     ["К нему нормы не применяются", "Ему дают двойной запас"]),
+    ("un grupo de ciclistas en carretera", "группа велосипедистов на дороге",
+     "Pueden circular en paralelo de dos", "Могут ехать по двое в ряд",
+     ["Deben ir siempre en fila india", "No pueden circular en grupo"],
+     ["Должны ехать только гуськом", "Не могут ехать группой"]),
+    ("el ciclista en una glorieta", "велосипедист на круговом",
+     "Tiene la prioridad de quien está dentro", "Имеет приоритет как находящийся внутри",
+     ["Debe ceder el paso siempre a los coches", "No puede entrar en la glorieta nunca"],
+     ["Всегда уступает машинам", "Не может въезжать на круговое"]),
+]
+
+
+# ============================ АВТОМАГИСТРАЛЬ ============================
+AUTOPISTA = [
+    ("dar marcha atrás en autopista", "движение задним ходом по магистрали",
+     "Está prohibido y es infracción grave", "Запрещено, это грубое нарушение",
+     ["Se permite hasta la salida más cercana", "Se permite con las luces de emergencia"],
+     ["Можно до ближайшего съезда", "Можно с включённой аварийкой"]),
+    ("parar en el arcén de una autopista", "остановка на обочине магистрали",
+     "Sólo por avería o emergencia", "Только при поломке или аварии",
+     ["Se permite para descansar un rato", "Se permite para consultar el mapa"],
+     ["Можно, чтобы немного отдохнуть", "Можно, чтобы посмотреть карту"]),
+    ("el carril izquierdo de una autopista", "левая полоса магистрали",
+     "Se usa para adelantar, no para circular", "Служит для обгона, а не для езды",
+     ["Es el carril normal de circulación", "Es el carril de los coches rápidos"],
+     ["Это обычная полоса движения", "Это полоса для быстрых машин"]),
+    ("entrar en autopista por el carril de aceleración", "въезд на магистраль по полосе разгона",
+     "Acelerar hasta la velocidad del tráfico", "Разогнаться до скорости потока",
+     ["Entrar despacio y ceder el paso después", "Detenerse al final del carril de entrada"],
+     ["Въехать медленно и уступить потом", "Остановиться в конце полосы"]),
+    ("los peatones en autopista", "пешеходы на магистрали",
+     "Tienen prohibido el acceso", "Им туда нельзя",
+     ["Pueden andar por el arcén", "Pueden cruzarla con precaución"],
+     ["Могут идти по обочине", "Могут переходить осторожно"]),
+    ("cambiar de sentido en autopista", "разворот на магистрали",
+     "Está prohibido en cualquier punto", "Запрещён в любом месте",
+     ["Se permite en los huecos habilitados", "Se permite si no viene nadie"],
+     ["Можно в специальных разрывах", "Можно, если никто не едет"]),
+]
+
+
+# ============================ ТУННЕЛИ ============================
+TUNEL = [
+    ("las luces al entrar en un túnel", "свет при въезде в туннель",
+     "Luz de cruce, aunque esté iluminado", "Ближний свет, даже если освещён",
+     ["Sólo luces de posición si hay luz", "Luz de carretera para ver mejor"],
+     ["Только габариты, если светло", "Дальний, чтобы лучше видеть"]),
+    ("una retención dentro de un túnel", "затор внутри туннеля",
+     "Encender las luces de emergencia", "Включить аварийную сигнализацию",
+     ["Tocar el claxon para avisar", "Adelantar por el carril libre"],
+     ["Посигналить, чтобы предупредить", "Обогнать по свободной полосе"]),
+    ("una avería dentro de un túnel", "поломка внутри туннеля",
+     "Apagar el motor y salir por la derecha", "Заглушить мотор и выйти справа",
+     ["Quedarse dentro del coche y esperar", "Empujar el coche hasta la salida"],
+     ["Остаться в машине и ждать", "Толкать машину до выезда"]),
+    ("cambiar de sentido en un túnel", "разворот в туннеле",
+     "Está prohibido siempre", "Запрещён всегда",
+     ["Se permite si hay hueco central", "Se permite a poca velocidad"],
+     ["Можно, если есть разрыв", "Можно на малой скорости"]),
+]
+
+
+# ============================ ЖИВОТНЫЕ В МАШИНЕ ============================
+ANIMALES = [
+    ("llevar un perro suelto en el coche", "перевозка собаки без фиксации",
+     "Es peligroso y puede sancionarse", "Опасно и может быть наказано",
+     ["Se permite si va detrás", "Se permite en trayectos cortos"],
+     ["Можно, если сзади", "Можно на коротких поездках"]),
+    ("el animal en el asiento del conductor", "животное на месте водителя",
+     "Nunca: estorba la conducción", "Никогда: мешает управлению",
+     ["Se permite si es pequeño", "Se permite si va quieto"],
+     ["Можно, если маленькое", "Можно, если сидит смирно"]),
+]
+
+
+def _dos_formulaciones(tabla, tema, plantillas):
+    """Разворачивает таблицу «ситуация → правило» по двум формулировкам."""
+    salida = []
+    for es, ru, bien_es, bien_ru, mal_es, mal_ru in tabla:
+        for p_es, p_ru in plantillas:
+            salida.append({
+                "t": tema,
+                "q": p_es.format(x=es),
+                "q_ru": p_ru.format(x=ru),
+                "o": [bien_es] + mal_es,
+                "o_ru": [bien_ru] + mal_ru,
+                "e": "%s: %s." % (ru.capitalize(), bien_ru.lower()),
+            })
+    return salida
+
+
+def preguntas_moto():
+    return _dos_formulaciones(MOTO, "seguridad", [
+        ("¿Qué norma rige para {x}?", "Какое правило действует для «{x}»?"),
+        ("Sobre {x}, ¿qué es correcto?", "Что верно про «{x}»?"),
+    ])
+
+
+def preguntas_bici():
+    return _dos_formulaciones(BICI, "seguridad", [
+        ("¿Qué dice la norma sobre {x}?", "Что говорит правило про «{x}»?"),
+        ("En cuanto a {x}, lo correcto es:", "Что касается «{x}», верно:"),
+    ])
+
+
+def preguntas_autopista():
+    return _dos_formulaciones(AUTOPISTA, "velocidad", [
+        ("¿Qué ocurre con {x}?", "Что с «{x}»?"),
+        ("Sobre {x}, la norma dice:", "Про «{x}» правило говорит:"),
+    ])
+
+
+def preguntas_tunel():
+    return _dos_formulaciones(TUNEL, "seguridad", [
+        ("¿Qué hay que hacer con {x}?", "Что делать: «{x}»?"),
+        ("Ante {x}, lo correcto es:", "При «{x}» верно:"),
+    ])
+
+
+def preguntas_animales():
+    return _dos_formulaciones(ANIMALES, "seguridad", [
+        ("¿Qué se sabe sobre {x}?", "Что известно про «{x}»?"),
+        ("Sobre {x}, ¿qué es cierto?", "Что верно про «{x}»?"),
+    ])
+
+
+# ⚠️ Вторые формулировки к таблицам, у которых была одна. Это не «разбавление»:
+# на экзамене одно и то же правило спрашивают разными словами, и человек, привыкший
+# к единственной шапке вопроса, теряется. Варианты ответа при этом те же.
+def preguntas_segunda_vuelta():
+    salida = []
+    salida += _dos_formulaciones(MANIOBRAS, "seguridad",
+                                 [("Sobre qué hacer {x}, lo correcto es:",
+                                   "Что делать {x} — верно:")])
+    salida += _dos_formulaciones(CONDUCTOR, "alcohol",
+                                 [("Sobre {x}, ¿qué es cierto?", "Что верно про «{x}»?")])
+    salida += _dos_formulaciones(CARGA, "seguridad",
+                                 [("En cuanto a {x}, la norma dice:",
+                                   "Что касается «{x}», правило говорит:")])
+    salida += _dos_formulaciones(SEGURIDAD, "seguridad",
+                                 [("Sobre {x}, ¿qué es correcto?", "Что верно про «{x}»?")])
+    salida += _dos_formulaciones(DOCUMENTOS_TABLA, "documentos",
+                                 [("Sobre {x}, ¿qué es cierto?", "Что верно про «{x}»?")])
+    for es, ru in SIN_ESTACIONAR:
+        salida.append({
+            "t": "multas",
+            "q": "¿Se puede estacionar %s?" % es,
+            "q_ru": "Можно ли ставить машину %s?" % ru,
+            "o": ["No, está prohibido y se sanciona",
+                  "Sí, si es por poco tiempo",
+                  "Sí, si no se molesta a nadie"],
+            "o_ru": ["Нет, запрещено и наказуемо",
+                     "Да, если ненадолго",
+                     "Да, если никому не мешает"],
+            "e": "Стоянка %s запрещена." % ru,
+        })
+    for es, ru in SIN_ADELANTAR:
+        salida.append({
+            "t": "prioridad",
+            "q": "¿Se puede adelantar %s?" % es,
+            "q_ru": "Можно ли обгонять %s?" % ru,
+            "o": ["No, está prohibido en todo caso",
+                  "Sí, si la vía está despejada",
+                  "Sí, si se hace con rapidez"],
+            "o_ru": ["Нет, запрещено в любом случае",
+                     "Да, если дорога свободна",
+                     "Да, если сделать это быстро"],
+            "e": "Обгон %s запрещён." % ru,
+        })
+    return salida
+
+
 def escribir(preguntas):
     def js(v):
         return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
@@ -1008,7 +1219,13 @@ def main():
               ("манёвры", preguntas_maniobras()),
               ("авария", preguntas_accidente()),
               ("водитель", preguntas_conductor()),
-              ("груз", preguntas_carga())]
+              ("груз", preguntas_carga()),
+              ("мотоциклы", preguntas_moto()),
+              ("велосипеды", preguntas_bici()),
+              ("магистраль", preguntas_autopista()),
+              ("туннели", preguntas_tunel()),
+              ("животные", preguntas_animales()),
+              ("вторые формулировки", preguntas_segunda_vuelta())]
     conocidas = ya_escritas_a_mano()
     todas, saltadas = [], 0
     for nombre, lote in partes:
