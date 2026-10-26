@@ -20,7 +20,7 @@ import io
 # файлами, а GitHub Pages отдаёт их с запасом в десять минут и браузер держит дольше.
 # Метки no-cache в head спасают только саму страницу, на скрипты они не действуют.
 # Правило: поправил motor.js, preguntas.js, senales.js или estilo.css — поднял версию.
-VERSION = "20260926a"
+VERSION = "20261026a"
 
 PLANTILLA = """<!DOCTYPE html>
 <html lang="ru">
@@ -75,12 +75,6 @@ PLANTILLA = """<!DOCTYPE html>
     </div>
   </div>
 
-  <div class="lucia">
-    <h2>Спросить голосом</h2>
-    <p>Люси разберёт испанскую формулировку по словам, объяснит правило по-русски и
-    поможет с бумагами: DGT, Jefatura, extranjería, padrón.</p>
-    <a class="boton lucia" href="https://repetiteur.onrender.com/?c=es-pdd">Открыть Люси</a>
-  </div>
 
   <div class="tarjeta">
     <h2>Другие темы</h2>

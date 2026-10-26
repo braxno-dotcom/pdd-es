@@ -222,12 +222,6 @@
     otra.textContent = "Пройти ещё раз";
     otra.addEventListener("click", empezar);
     $("zona").appendChild(otra);
-
-    var luci = document.createElement("a");
-    luci.className = "boton secundario";
-    luci.href = "https://repetiteur.onrender.com/?c=es-pdd";
-    luci.textContent = "Спросить Люси, если что-то непонятно";
-    $("zona").appendChild(luci);
   }
 
   function aplicarRuso() {
